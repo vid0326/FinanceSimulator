@@ -1,6 +1,6 @@
 /**
- * Life Simulation Screen
- * Core decision arena: Turn-based monthly progression, scenario dilemmas, and decision logs.
+ * Life Simulation Screen — Gamified Turn Arena
+ * Features Reigns-style swipe dilemma cards, comic consequence vignettes, and witty mascot quips.
  */
 
 import React, { useState } from 'react';
@@ -15,8 +15,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useSimulationStore } from '../../store/useSimulationStore';
-import { DecisionCard } from '../components/DecisionCard';
-import { ConsequenceModal } from '../components/ConsequenceModal';
+import { SwipeDilemmaCard } from '../components/SwipeDilemmaCard';
+import { ComicConsequenceModal } from '../components/ComicConsequenceModal';
+import { MascotCompanion } from '../components/MascotCompanion';
 import { FlyingCoins } from '../components/FlyingCoins';
 import { formatINR } from '../components/CurrencyText';
 
@@ -24,7 +25,9 @@ export const LifeScreen: React.FC = () => {
   const [coinBurstKey, setCoinBurstKey] = useState(0);
 
   const profile = useSimulationStore((state) => state.profile);
+  const balanceSheet = useSimulationStore((state) => state.balanceSheet);
   const budget = useSimulationStore((state) => state.budget);
+  const health = useSimulationStore((state) => state.healthScore);
   const currentEvent = useSimulationStore((state) => state.currentEvent);
   const decisionLogs = useSimulationStore((state) => state.decisionLogs);
   const lastConsequence = useSimulationStore((state) => state.lastConsequence);
@@ -41,55 +44,46 @@ export const LifeScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Stage Timeline Header */}
+        {/* Timeline & Turn Header */}
         <View style={styles.timelineHeader}>
           <View>
             <Text style={styles.stageTag}>{profile.currentStage.replace('_', ' ').toUpperCase()}</Text>
             <Text style={styles.dateTitle}>
-              Year {Math.floor(profile.totalMonthsSimulated / 12) + 1} • Month {profile.currentMonth} (Age {profile.currentAge})
+              Month {profile.currentMonth} • Age {profile.currentAge}
             </Text>
           </View>
           <View style={styles.turnPill}>
-            <Ionicons name="hourglass-outline" size={14} color={colors.accent} />
+            <Ionicons name="sparkles" size={14} color={colors.accent} />
             <Text style={styles.turnText}>Turn {profile.totalMonthsSimulated + 1}</Text>
           </View>
         </View>
 
-        {/* Active Scenario Card */}
+        {/* Witty Mascot Companion Bubble */}
+        <MascotCompanion balanceSheet={balanceSheet} health={health} age={profile.currentAge} />
+
+        {/* Hero Interactive Area: Reigns Swipe Card OR Calm Month */}
         {currentEvent ? (
-          <View style={styles.eventBox}>
-            <View style={styles.eventBadgeRow}>
-              <View style={[styles.categoryBadge, { backgroundColor: currentEvent.accentColor + '25' }]}>
-                <Ionicons name={currentEvent.icon as any} size={14} color={currentEvent.accentColor} />
-                <Text style={[styles.categoryText, { color: currentEvent.accentColor }]}>
-                  {currentEvent.category.toUpperCase()} SCENARIO
-                </Text>
-              </View>
+          <View style={styles.swipeSection}>
+            <View style={styles.swipePromptHeader}>
+              <Text style={styles.swipeInstructions}>
+                👈 SWIPE TO DECIDE 👉
+              </Text>
             </View>
 
-            <Text style={styles.eventTitle}>{currentEvent.title}</Text>
-            <Text style={styles.eventHeadline}>{currentEvent.headline}</Text>
-            <Text style={styles.eventDescription}>{currentEvent.storyDescription}</Text>
-
-            <Text style={styles.optionsPrompt}>Choose your financial decision:</Text>
-
-            {currentEvent.options.map((opt, idx) => (
-              <DecisionCard
-                key={opt.id}
-                option={opt}
-                index={idx}
-                onSelect={(selected) => selectDecision(selected)}
-              />
-            ))}
+            <SwipeDilemmaCard
+              key={currentEvent.id}
+              event={currentEvent}
+              onSelectOption={(option) => selectDecision(option)}
+            />
           </View>
         ) : (
           <View style={styles.calmMonthBox}>
             <View style={styles.calmIconBubble}>
               <Ionicons name="sunny" size={32} color={colors.primary} />
             </View>
-            <Text style={styles.calmTitle}>Smooth Financial Month</Text>
+            <Text style={styles.calmTitle}>Smooth Month</Text>
             <Text style={styles.calmSubtitle}>
-              No acute crises this turn. Salary of {formatINR(budget.baseSalary)} credited, budgeted living expenses settled, and active investments compounded.
+              Salary of {formatINR(budget.baseSalary)} credited! Essentials paid, SIPs compounding. No unexpected crises.
             </Text>
 
             <TouchableOpacity style={styles.nextMonthBtn} activeOpacity={0.85} onPress={handleAdvance}>
@@ -99,37 +93,36 @@ export const LifeScreen: React.FC = () => {
           </View>
         )}
 
-        {/* Life Decision History Log */}
+        {/* Recent Decision History Feed */}
         <View style={styles.historySection}>
-          <Text style={styles.sectionTitle}>Life Decision History ({decisionLogs.length})</Text>
+          <Text style={styles.sectionTitle}>Recent Decisions ({decisionLogs.length})</Text>
 
           {decisionLogs.length === 0 ? (
-            <Text style={styles.emptyHistory}>No decisions recorded yet. Play your first scenario!</Text>
+            <Text style={styles.emptyHistory}>Swipe your first dilemma card above to record history!</Text>
           ) : (
-            decisionLogs.slice(0, 5).map((log) => {
+            decisionLogs.slice(0, 4).map((log) => {
               const isPositive = log.consequence.financialHealthDelta >= 0;
               return (
                 <View key={log.id} style={styles.historyCard}>
-                  <View style={styles.historyHeader}>
-                    <Text style={styles.historyEventTitle}>{log.eventTitle}</Text>
+                  <View style={styles.historyTop}>
+                    <Text style={styles.historyTitle}>{log.eventTitle}</Text>
                     <View
                       style={[
-                        styles.historyDelta,
+                        styles.historyPill,
                         { backgroundColor: isPositive ? colors.primaryGlow : colors.dangerGlow },
                       ]}
                     >
                       <Text
                         style={[
-                          styles.historyDeltaText,
+                          styles.historyPillText,
                           { color: isPositive ? colors.primaryLight : colors.dangerLight },
                         ]}
                       >
-                        {isPositive ? '+' : ''}
-                        {log.consequence.financialHealthDelta} pts
+                        {isPositive ? '+' : ''}{log.consequence.financialHealthDelta} pts
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.historyChoice}>Selected: {log.selectedOptionTitle}</Text>
+                  <Text style={styles.historyChoice}>You chose: {log.selectedOptionTitle}</Text>
                   <Text style={styles.historyLesson}>{log.consequence.financialLesson}</Text>
                 </View>
               );
@@ -138,11 +131,11 @@ export const LifeScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* Flying Coins Effect */}
+      {/* Flying Coins Burst Particle */}
       <FlyingCoins triggerKey={coinBurstKey} />
 
-      {/* Consequence Modal */}
-      <ConsequenceModal
+      {/* 3-Panel Comic Consequence Storyboard */}
+      <ComicConsequenceModal
         visible={lastConsequence !== null}
         consequence={lastConsequence}
         onDismiss={dismissConsequence}
@@ -164,7 +157,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 4,
   },
   stageTag: {
     fontSize: 11,
@@ -176,7 +169,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
     color: colors.text,
-    marginTop: 2,
+    marginTop: 1,
   },
   turnPill: {
     flexDirection: 'row',
@@ -189,159 +182,121 @@ const styles = StyleSheet.create({
   },
   turnText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     color: colors.accent,
   },
-  eventBox: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1.5,
-    borderColor: colors.surfaceBorder,
-    marginBottom: 20,
+  swipeSection: {
+    marginVertical: 4,
   },
-  eventBadgeRow: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  categoryBadge: {
-    flexDirection: 'row',
+  swipePromptHeader: {
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    marginBottom: 2,
   },
-  categoryText: {
+  swipeInstructions: {
     fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  eventTitle: {
-    fontSize: 20,
     fontWeight: '900',
-    color: colors.text,
-    marginBottom: 6,
-  },
-  eventHeadline: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.accentLight,
-    marginBottom: 8,
-  },
-  eventDescription: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    lineHeight: 19,
-    marginBottom: 16,
-  },
-  optionsPrompt: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 8,
+    color: colors.textMuted,
+    letterSpacing: 1,
   },
   calmMonthBox: {
     backgroundColor: colors.surface,
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 24,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.surfaceBorder,
-    marginBottom: 20,
+    marginVertical: 14,
   },
   calmIconBubble: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: colors.primaryGlow,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   calmTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '900',
     color: colors.text,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   calmSubtitle: {
     fontSize: 13,
     color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 19,
-    marginBottom: 20,
+    lineHeight: 18,
+    marginBottom: 18,
   },
   nextMonthBtn: {
     backgroundColor: colors.primary,
     borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
+    paddingVertical: 13,
+    paddingHorizontal: 22,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
   nextMonthText: {
     color: '#0B0F19',
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '900',
   },
   historySection: {
-    marginTop: 8,
+    marginTop: 12,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
     color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   emptyHistory: {
-    fontSize: 13,
+    fontSize: 12,
     color: colors.textMuted,
     fontStyle: 'italic',
   },
   historyCard: {
     backgroundColor: colors.surface,
     borderRadius: 14,
-    padding: 14,
+    padding: 12,
     marginBottom: 8,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
   },
-  historyHeader: {
+  historyTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 3,
   },
-  historyEventTitle: {
-    fontSize: 14,
-    fontWeight: '700',
+  historyTitle: {
+    fontSize: 13,
+    fontWeight: '800',
     color: colors.text,
     flex: 1,
   },
-  historyDelta: {
+  historyPill: {
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
   },
-  historyDeltaText: {
-    fontSize: 11,
+  historyPillText: {
+    fontSize: 10,
     fontWeight: '800',
   },
   historyChoice: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: colors.primaryLight,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   historyLesson: {
-    fontSize: 12,
+    fontSize: 11,
     color: colors.textSecondary,
-    lineHeight: 16,
+    lineHeight: 15,
   },
 });

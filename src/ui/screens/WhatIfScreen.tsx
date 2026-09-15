@@ -1,6 +1,6 @@
 /**
  * What-If Sandbox Simulator Screen
- * Compare hypothetical financial scenarios, loan impacts, delayed investing, and compounding timelines.
+ * Features the TimeMachineDial, analog age scrubber, and split-screen alternate reality mirror.
  */
 
 import React, { useState, useMemo } from 'react';
@@ -18,6 +18,7 @@ import { useSimulationStore } from '../../store/useSimulationStore';
 import { WhatIfEngine } from '../../core/whatif/WhatIfEngine';
 import { WhatIfScenarioInput, WhatIfComparisonResult } from '../../core/types/whatif';
 import { WhatIfChart } from '../components/WhatIfChart';
+import { TimeMachineDial } from '../components/TimeMachineDial';
 import { formatINR } from '../components/CurrencyText';
 
 type PresetType = 'extra_sip' | 'bike_loan' | 'delay_investing' | 'job_loss';
@@ -29,14 +30,16 @@ export const WhatIfScreen: React.FC = () => {
 
   const [activePreset, setActivePreset] = useState<PresetType>('extra_sip');
   const [additionalSIP, setAdditionalSIP] = useState<number>(5000);
-  const [horizonMonths, setHorizonMonths] = useState<number>(60);
+  const [selectedAge, setSelectedAge] = useState<number>(profile.currentAge + 5);
 
-  // Derive scenario input based on active preset
+  // Compute projection horizon in months from selectedAge
+  const horizonMonths = Math.max(12, (selectedAge - profile.currentAge) * 12);
+
   const scenarioInput: WhatIfScenarioInput = useMemo(() => {
     switch (activePreset) {
       case 'extra_sip':
         return {
-          title: `Save & Invest Extra ₹${additionalSIP.toLocaleString('en-IN')}/Month`,
+          title: `Invest Extra ₹${additionalSIP.toLocaleString('en-IN')}/Month`,
           monthlyAdditionalSavings: 0,
           monthlyAdditionalSIP: additionalSIP,
           delayInvestingByYears: 0,
@@ -47,7 +50,7 @@ export const WhatIfScreen: React.FC = () => {
 
       case 'bike_loan':
         return {
-          title: 'Buy ₹1,80,000 Bike on 3-Year EMI (14% Interest)',
+          title: 'Take ₹1,80,000 Bike Loan (14% Interest)',
           monthlyAdditionalSavings: 0,
           monthlyAdditionalSIP: 0,
           delayInvestingByYears: 0,
@@ -75,7 +78,7 @@ export const WhatIfScreen: React.FC = () => {
 
       case 'job_loss':
         return {
-          title: 'Survive a 4-Month Job Loss Gap with No Income',
+          title: 'Survive 4-Month Job Loss Gap',
           monthlyAdditionalSavings: 0,
           monthlyAdditionalSIP: 0,
           delayInvestingByYears: 0,
@@ -87,7 +90,6 @@ export const WhatIfScreen: React.FC = () => {
     }
   }, [activePreset, additionalSIP, horizonMonths]);
 
-  // Compute projection dynamically using WhatIfEngine
   const comparisonResult: WhatIfComparisonResult = useMemo(() => {
     return WhatIfEngine.simulateScenario(
       balanceSheet,
@@ -97,16 +99,14 @@ export const WhatIfScreen: React.FC = () => {
     );
   }, [balanceSheet, budget, profile.currentAge, scenarioInput]);
 
-  const isNetPositive = comparisonResult.netWorthDifference >= 0;
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>“What If?” Simulator</Text>
+          <Text style={styles.title}>“What If?” Time Machine</Text>
           <Text style={styles.subtitle}>
-            Test trade-offs and observe how compounding or loans alter your future.
+            Spin the dial and see how today's choices shape your wealth at Age {selectedAge}.
           </Text>
         </View>
 
@@ -148,16 +148,25 @@ export const WhatIfScreen: React.FC = () => {
           >
             <Ionicons name="alert-circle" size={16} color={activePreset === 'job_loss' ? '#0B0F19' : colors.secondaryLight} />
             <Text style={[styles.presetTabText, activePreset === 'job_loss' && styles.presetTabTextActive]}>
-              4-Mo Job Loss
+              Job Loss
             </Text>
           </TouchableOpacity>
         </ScrollView>
 
-        {/* Dynamic Controls for Extra SIP */}
+        {/* Interactive Time Machine Scrubber Dial */}
+        <TimeMachineDial
+          currentAge={profile.currentAge}
+          selectedAge={selectedAge}
+          onAgeChange={setSelectedAge}
+          baselineWealth={comparisonResult.baselineFinalNetWorth}
+          whatIfWealth={comparisonResult.whatIfFinalNetWorth}
+        />
+
+        {/* Stepper Buttons for Extra SIP */}
         {activePreset === 'extra_sip' && (
-          <View style={styles.controlBox}>
-            <Text style={styles.controlLabel}>Additional Monthly SIP Amount</Text>
-            <View style={styles.sipStepperRow}>
+          <View style={styles.sipSelector}>
+            <Text style={styles.controlLabel}>Select Additional Monthly SIP:</Text>
+            <View style={styles.sipPillRow}>
               {[2000, 5000, 10000].map((amt) => (
                 <TouchableOpacity
                   key={amt}
@@ -173,44 +182,17 @@ export const WhatIfScreen: React.FC = () => {
           </View>
         )}
 
-        {/* Projection Comparison Headline Card */}
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>{scenarioInput.title}</Text>
-          <View style={styles.summaryValuesRow}>
-            <View>
-              <Text style={styles.diffLabel}>Net Worth Impact ({horizonMonths / 12} Years)</Text>
-              <Text
-                style={[
-                  styles.diffValue,
-                  { color: isNetPositive ? colors.primaryLight : colors.dangerLight },
-                ]}
-              >
-                {isNetPositive ? '+' : ''}
-                {formatINR(comparisonResult.netWorthDifference)}
-              </Text>
-            </View>
-            <View style={styles.pctBadge}>
-              <Text style={[styles.pctText, { color: isNetPositive ? colors.primaryLight : colors.dangerLight }]}>
-                {comparisonResult.percentageImpact > 0 ? '+' : ''}
-                {comparisonResult.percentageImpact}%
-              </Text>
-            </View>
-          </View>
-        </View>
+        {/* Interactive Dual Projection Chart */}
+        <WhatIfChart dataPoints={comparisonResult.chartPoints} height={210} />
 
-        {/* Dual Projection Curve Chart */}
-        <WhatIfChart dataPoints={comparisonResult.chartPoints} height={230} />
-
-        {/* AI Coach Opportunity Cost Insight */}
-        <View style={styles.coachInsightBox}>
-          <View style={styles.coachInsightHeader}>
-            <Ionicons name="bulb-outline" size={18} color={colors.accent} />
-            <Text style={styles.coachInsightTitle}>AI Coach Behavioral Takeaway</Text>
+        {/* Comic Punchline Card */}
+        <View style={styles.punchlineCard}>
+          <View style={styles.punchlineHeader}>
+            <Ionicons name="bulb" size={16} color={colors.accent} />
+            <Text style={styles.punchlineTitle}>THE PUNCHLINE</Text>
           </View>
-          <Text style={styles.coachInsightText}>{comparisonResult.aiCoachInsight}</Text>
-          <View style={styles.ruleDivider} />
-          <Text style={styles.lessonHighlight}>
-            📌 <Text style={{ fontWeight: '800' }}>Principle:</Text> {comparisonResult.keyEducationalTakeaway}
+          <Text style={styles.punchlineBody}>
+            {comparisonResult.keyEducationalTakeaway}
           </Text>
         </View>
       </ScrollView>
@@ -228,7 +210,7 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   header: {
-    marginBottom: 14,
+    marginBottom: 12,
   },
   title: {
     fontSize: 22,
@@ -242,15 +224,15 @@ const styles = StyleSheet.create({
   },
   presetScroll: {
     flexDirection: 'row',
-    marginBottom: 14,
+    marginBottom: 10,
   },
   presetTab: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     backgroundColor: colors.surface,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 12,
     marginRight: 8,
     borderWidth: 1,
@@ -268,22 +250,22 @@ const styles = StyleSheet.create({
   presetTabTextActive: {
     color: '#0B0F19',
   },
-  controlBox: {
+  sipSelector: {
     backgroundColor: colors.surface,
     borderRadius: 14,
     padding: 12,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
-    marginBottom: 12,
   },
   controlLabel: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '800',
     color: colors.textSecondary,
     textTransform: 'uppercase',
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  sipStepperRow: {
+  sipPillRow: {
     flexDirection: 'row',
     gap: 8,
   },
@@ -307,77 +289,30 @@ const styles = StyleSheet.create({
   sipPillTextActive: {
     color: colors.primaryLight,
   },
-  summaryCard: {
+  punchlineCard: {
     backgroundColor: colors.surface,
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-    marginBottom: 10,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  summaryValuesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  diffLabel: {
-    fontSize: 11,
-    color: colors.textMuted,
-  },
-  diffValue: {
-    fontSize: 24,
-    fontWeight: '900',
-    marginTop: 2,
-  },
-  pctBadge: {
-    backgroundColor: colors.surfaceElevated,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-  },
-  pctText: {
-    fontSize: 16,
-    fontWeight: '900',
-  },
-  coachInsightBox: {
-    backgroundColor: colors.surface,
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 16,
+    padding: 14,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
     marginTop: 10,
   },
-  coachInsightHeader: {
+  punchlineHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 6,
+    marginBottom: 4,
   },
-  coachInsightTitle: {
-    fontSize: 13,
-    fontWeight: '800',
+  punchlineTitle: {
+    fontSize: 11,
+    fontWeight: '900',
     color: colors.accent,
-    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  coachInsightText: {
+  punchlineBody: {
     fontSize: 13,
     color: colors.text,
-    lineHeight: 19,
-  },
-  ruleDivider: {
-    height: 1,
-    backgroundColor: colors.surfaceBorder,
-    marginVertical: 10,
-  },
-  lessonHighlight: {
-    fontSize: 13,
-    color: colors.textSecondary,
     lineHeight: 18,
+    fontWeight: '600',
   },
 });
