@@ -11,6 +11,8 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
@@ -87,7 +89,7 @@ export const LifeScreen: React.FC = () => {
             </Text>
 
             <TouchableOpacity style={styles.nextMonthBtn} activeOpacity={0.85} onPress={handleAdvance}>
-              <Ionicons name="play-forward" size={18} color="#0B0F19" />
+              <Ionicons name="play-forward" size={18} color="#000000" />
               <Text style={styles.nextMonthText}>Advance to Next Month</Text>
             </TouchableOpacity>
           </View>
@@ -148,6 +150,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
     padding: 16,
@@ -179,6 +182,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   turnText: {
     fontSize: 12,
@@ -211,10 +216,12 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: colors.primaryGlow,
+    backgroundColor: colors.surfaceElevated,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   calmTitle: {
     fontSize: 18,
@@ -230,7 +237,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   nextMonthBtn: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#FFFFFF',
     borderRadius: 14,
     paddingVertical: 13,
     paddingHorizontal: 22,
@@ -239,7 +246,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   nextMonthText: {
-    color: '#0B0F19',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '900',
   },

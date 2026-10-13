@@ -12,6 +12,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
   TextInput,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
@@ -116,7 +118,7 @@ export const PortfolioScreen: React.FC = () => {
                 ? (asset.currentValue / balanceSheet.investmentsTotal) * 100
                 : 0;
               if (weight <= 0) return null;
-              const barColors = [colors.primary, colors.chartBaseline, colors.accent, '#A78BFA'];
+              const barColors = ['#FFFFFF', '#D1D5DB', '#9CA3AF', '#4B5563'];
               const barColor = barColors[idx % barColors.length];
               return (
                 <View
@@ -194,6 +196,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
     padding: 16,
@@ -406,13 +409,13 @@ const styles = StyleSheet.create({
     width: 80,
   },
   saveSIPBtn: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
   },
   saveSIPText: {
-    color: '#0B0F19',
+    color: '#000000',
     fontSize: 12,
     fontWeight: '800',
   },

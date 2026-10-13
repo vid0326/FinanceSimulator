@@ -11,6 +11,8 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
@@ -116,7 +118,7 @@ export const WhatIfScreen: React.FC = () => {
             style={[styles.presetTab, activePreset === 'extra_sip' && styles.presetTabActive]}
             onPress={() => setActivePreset('extra_sip')}
           >
-            <Ionicons name="trending-up" size={16} color={activePreset === 'extra_sip' ? '#0B0F19' : colors.primary} />
+            <Ionicons name="trending-up" size={16} color={activePreset === 'extra_sip' ? '#000000' : '#FFFFFF'} />
             <Text style={[styles.presetTabText, activePreset === 'extra_sip' && styles.presetTabTextActive]}>
               +₹5k SIP
             </Text>
@@ -126,7 +128,7 @@ export const WhatIfScreen: React.FC = () => {
             style={[styles.presetTab, activePreset === 'bike_loan' && styles.presetTabActive]}
             onPress={() => setActivePreset('bike_loan')}
           >
-            <Ionicons name="bicycle" size={16} color={activePreset === 'bike_loan' ? '#0B0F19' : colors.danger} />
+            <Ionicons name="bicycle" size={16} color={activePreset === 'bike_loan' ? '#000000' : '#FFFFFF'} />
             <Text style={[styles.presetTabText, activePreset === 'bike_loan' && styles.presetTabTextActive]}>
               Vehicle Loan
             </Text>
@@ -136,7 +138,7 @@ export const WhatIfScreen: React.FC = () => {
             style={[styles.presetTab, activePreset === 'delay_investing' && styles.presetTabActive]}
             onPress={() => setActivePreset('delay_investing')}
           >
-            <Ionicons name="time" size={16} color={activePreset === 'delay_investing' ? '#0B0F19' : colors.accent} />
+            <Ionicons name="time" size={16} color={activePreset === 'delay_investing' ? '#000000' : '#FFFFFF'} />
             <Text style={[styles.presetTabText, activePreset === 'delay_investing' && styles.presetTabTextActive]}>
               Delay 5 Years
             </Text>
@@ -146,7 +148,7 @@ export const WhatIfScreen: React.FC = () => {
             style={[styles.presetTab, activePreset === 'job_loss' && styles.presetTabActive]}
             onPress={() => setActivePreset('job_loss')}
           >
-            <Ionicons name="alert-circle" size={16} color={activePreset === 'job_loss' ? '#0B0F19' : colors.secondaryLight} />
+            <Ionicons name="alert-circle" size={16} color={activePreset === 'job_loss' ? '#000000' : '#FFFFFF'} />
             <Text style={[styles.presetTabText, activePreset === 'job_loss' && styles.presetTabTextActive]}>
               Job Loss
             </Text>
@@ -204,6 +206,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
     padding: 16,
@@ -239,8 +242,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   presetTabActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   presetTabText: {
     fontSize: 12,
@@ -248,7 +251,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   presetTabTextActive: {
-    color: '#0B0F19',
+    color: '#000000',
   },
   sipSelector: {
     backgroundColor: colors.surface,
@@ -275,11 +278,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: colors.surfaceElevated,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   sipPillActive: {
-    backgroundColor: colors.primaryGlow,
-    borderWidth: 1,
-    borderColor: colors.primary,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   sipPillText: {
     fontSize: 12,
@@ -287,7 +291,8 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   sipPillTextActive: {
-    color: colors.primaryLight,
+    color: '#000000',
+    fontWeight: '800',
   },
   punchlineCard: {
     backgroundColor: colors.surface,

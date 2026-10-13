@@ -103,10 +103,10 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   debtCard: {
-    borderColor: 'rgba(239, 68, 68, 0.4)',
+    borderColor: colors.surfaceBorderLight,
   },
   investCard: {
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderColor: '#FFFFFF',
   },
   topRow: {
     flexDirection: 'row',
@@ -125,12 +125,12 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   debtBadge: {
-    backgroundColor: 'rgba(239, 68, 68, 0.2)',
-    borderColor: colors.danger,
+    backgroundColor: colors.surfaceElevated,
+    borderColor: colors.surfaceBorderLight,
   },
   investBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    borderColor: colors.primary,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   letterText: {
     color: colors.text,

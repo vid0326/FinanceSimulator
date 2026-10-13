@@ -136,7 +136,7 @@ export const ConsequenceModal: React.FC<ConsequenceModalProps> = ({
           {/* Continue Button */}
           <TouchableOpacity style={styles.continueButton} activeOpacity={0.8} onPress={onDismiss}>
             <Text style={styles.continueButtonText}>Understood — Continue Life</Text>
-            <Ionicons name="arrow-forward" size={18} color="#0B0F19" />
+            <Ionicons name="arrow-forward" size={18} color="#000000" />
           </TouchableOpacity>
         </View>
       </View>
@@ -147,7 +147,7 @@ export const ConsequenceModal: React.FC<ConsequenceModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(5, 8, 15, 0.85)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'flex-end',
   },
   modalContent: {
@@ -170,6 +170,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
+    backgroundColor: colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   headline: {
     fontSize: 20,
@@ -182,6 +185,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     backgroundColor: colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   deltaText: {
     fontSize: 12,
@@ -212,11 +217,11 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   lessonBox: {
-    backgroundColor: colors.primaryGlow,
+    backgroundColor: colors.surfaceElevated,
     padding: 14,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    borderColor: colors.surfaceBorder,
   },
   lessonText: {
     fontWeight: '600',
@@ -229,6 +234,8 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     marginTop: 8,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   metricItem: {
     alignItems: 'center',
@@ -243,7 +250,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   continueButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#FFFFFF',
     paddingVertical: 14,
     borderRadius: 14,
     flexDirection: 'row',
@@ -252,7 +259,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   continueButtonText: {
-    color: '#0B0F19',
+    color: '#000000',
     fontSize: 16,
     fontWeight: '800',
   },

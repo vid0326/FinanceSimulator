@@ -12,6 +12,8 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
@@ -131,7 +133,7 @@ export const OnboardingScreen: React.FC = () => {
         {/* Start Button */}
         <TouchableOpacity style={styles.startButton} activeOpacity={0.85} onPress={handleStart}>
           <Text style={styles.startButtonText}>Begin Financial Life</Text>
-          <Ionicons name="sparkles" size={18} color="#0B0F19" />
+          <Ionicons name="sparkles" size={18} color="#000000" />
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -142,6 +144,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
     padding: 20,
@@ -171,18 +174,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: colors.primaryGlow,
+    backgroundColor: colors.surfaceElevated,
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    borderColor: colors.surfaceBorder,
   },
   disclaimerText: {
     fontSize: 11,
     fontWeight: '700',
-    color: colors.primaryLight,
+    color: colors.textSecondary,
   },
   inputGroup: {
     marginBottom: 18,
@@ -220,8 +223,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   stageCardSelected: {
-    borderColor: colors.primary,
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    borderColor: '#FFFFFF',
+    backgroundColor: colors.surfaceElevated,
   },
   stageCardHeader: {
     flexDirection: 'row',
@@ -235,7 +238,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   stageCardTitleSelected: {
-    color: colors.primaryLight,
+    color: '#FFFFFF',
   },
   stageCardAge: {
     fontSize: 12,
@@ -258,6 +261,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   previewTitle: {
     fontSize: 12,
@@ -285,21 +290,16 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   startButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingVertical: 16,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 6,
   },
   startButtonText: {
-    color: '#0B0F19',
+    color: '#000000',
     fontSize: 17,
     fontWeight: '900',
   },

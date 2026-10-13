@@ -65,7 +65,7 @@ const CoinParticle: React.FC<CoinParticleProps> = ({ startX, startY, angle, dist
   return (
     <Animated.View style={animatedStyle} pointerEvents="none">
       <View style={styles.coinCircle}>
-        <Ionicons name="cash" size={16} color="#FFFBEB" />
+        <Ionicons name="cash" size={16} color="#000000" />
       </View>
     </Animated.View>
   );
@@ -113,15 +113,10 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: colors.accent,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FEF3C7',
-    shadowColor: colors.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
-    shadowRadius: 6,
-    elevation: 8,
+    borderWidth: 1.5,
+    borderColor: '#E5E5E5',
   },
 });

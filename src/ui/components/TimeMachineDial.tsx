@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   dialPillSelected: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accentLight,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   dialPillAge: {
     fontSize: 12,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   dialPillAgeSelected: {
-    color: '#0B0F19',
+    color: '#000000',
   },
   splitMirrorContainer: {
     flexDirection: 'row',

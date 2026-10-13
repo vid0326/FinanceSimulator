@@ -14,6 +14,7 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
@@ -56,7 +57,7 @@ export const CoachScreen: React.FC = () => {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <View style={styles.coachAvatar}>
-              <Ionicons name="sparkles" size={20} color="#0B0F19" />
+              <Ionicons name="sparkles" size={18} color="#000000" />
             </View>
             <View>
               <Text style={styles.coachTitle}>AI Financial Coach</Text>
@@ -129,7 +130,7 @@ export const CoachScreen: React.FC = () => {
             disabled={!inputQuery.trim()}
             onPress={() => handleSend()}
           >
-            <Ionicons name="arrow-up" size={18} color="#0B0F19" />
+            <Ionicons name="arrow-up" size={18} color="#000000" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -141,6 +142,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
     flex: 1,
@@ -164,7 +166,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.secondaryLight,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -186,12 +188,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   onlineDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.primary,
+    backgroundColor: '#FFFFFF',
   },
   offlineText: {
     fontSize: 11,
@@ -230,7 +234,7 @@ const styles = StyleSheet.create({
   },
   userBubble: {
     alignSelf: 'flex-end',
-    backgroundColor: colors.secondary,
+    backgroundColor: '#FFFFFF',
   },
   messageText: {
     fontSize: 14,
@@ -240,8 +244,8 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   userText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
+    color: '#000000',
+    fontWeight: '700',
   },
   quickPromptsContainer: {
     paddingHorizontal: 12,
@@ -270,6 +274,8 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: colors.surface,
     gap: 8,
+    borderTopWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   textInput: {
     flex: 1,
@@ -279,16 +285,18 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     color: colors.text,
     fontSize: 14,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   sendButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.primary,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   sendButtonDisabled: {
-    opacity: 0.4,
+    opacity: 0.3,
   },
 });

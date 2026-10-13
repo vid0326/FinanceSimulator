@@ -58,13 +58,11 @@ export const MascotCompanion: React.FC<MascotCompanionProps> = ({ balanceSheet, 
 
   const quip = getQuip();
 
-  let tagColor = colors.primary;
+  let tagColor = '#FFFFFF';
   let tagLabel = 'COACH SAYS';
   if (quip.mood === 'roast') {
-    tagColor = colors.dangerLight;
     tagLabel = 'REAL TALK 🔥';
   } else if (quip.mood === 'caution') {
-    tagColor = colors.accent;
     tagLabel = 'HEADS UP ⚠️';
   }
 
@@ -77,28 +75,28 @@ export const MascotCompanion: React.FC<MascotCompanionProps> = ({ balanceSheet, 
       {/* Animated Mascot Icon */}
       <View style={styles.mascotIconBox}>
         <Svg width="44" height="44" viewBox="0 0 44 44">
-          <Circle cx="22" cy="22" r="20" fill="#1E293B" stroke={tagColor} strokeWidth="2" />
+          <Circle cx="22" cy="22" r="20" fill="#181818" stroke="#3A3A3A" strokeWidth="1.5" />
           {/* Eyes */}
-          <Circle cx="16" cy="20" r="3" fill="#F8FAFC" />
-          <Circle cx="28" cy="20" r="3" fill="#F8FAFC" />
-          <Circle cx="16.5" cy="20" r="1.5" fill="#0B0F19" />
-          <Circle cx="28.5" cy="20" r="1.5" fill="#0B0F19" />
+          <Circle cx="16" cy="20" r="3" fill="#FFFFFF" />
+          <Circle cx="28" cy="20" r="3" fill="#FFFFFF" />
+          <Circle cx="16.5" cy="20" r="1.5" fill="#000000" />
+          <Circle cx="28.5" cy="20" r="1.5" fill="#000000" />
           {/* Grin or Ouch mouth */}
           {quip.mood === 'roast' ? (
-            <Path d="M 16 28 Q 22 23 28 28" stroke="#F87171" strokeWidth="2" fill="none" />
+            <Path d="M 16 28 Q 22 23 28 28" stroke="#FFFFFF" strokeWidth="2" fill="none" />
           ) : (
-            <Path d="M 16 26 Q 22 32 28 26" stroke="#34D399" strokeWidth="2" fill="none" />
+            <Path d="M 16 26 Q 22 32 28 26" stroke="#FFFFFF" strokeWidth="2" fill="none" />
           )}
           {/* Horns / Ears */}
-          <Path d="M 12 12 L 15 17" stroke={tagColor} strokeWidth="2.5" strokeLinecap="round" />
-          <Path d="M 32 12 L 29 17" stroke={tagColor} strokeWidth="2.5" strokeLinecap="round" />
+          <Path d="M 12 12 L 15 17" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+          <Path d="M 32 12 L 29 17" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
         </Svg>
       </View>
 
       {/* Speech Bubble */}
       <View style={styles.speechBubble}>
         <View style={styles.bubbleHeader}>
-          <Text style={[styles.tagText, { color: tagColor }]}>{tagLabel}</Text>
+          <Text style={[styles.tagText, { color: '#FFFFFF' }]}>{tagLabel}</Text>
           <Text style={styles.tapPrompt}>tap for fresh advice</Text>
         </View>
         <Text style={styles.quipText}>{quip.text}</Text>

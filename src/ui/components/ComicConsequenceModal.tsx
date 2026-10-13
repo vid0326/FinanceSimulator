@@ -26,16 +26,13 @@ export const ComicConsequenceModal: React.FC<ComicConsequenceModalProps> = ({
   const isNetPositive = consequence.financialHealthDelta >= 0;
 
   let soundBadge = '⚡ KA-CHING!';
-  let soundColor = colors.primary;
+  let soundColor = '#FFFFFF';
   if (consequence.debtDelta > 0) {
     soundBadge = '💥 OUCH!';
-    soundColor = colors.danger;
   } else if (consequence.cashDelta < 0 && consequence.financialHealthDelta < 0) {
     soundBadge = '💸 POOF!';
-    soundColor = colors.accent;
   } else if (isNetPositive) {
     soundBadge = '🚀 LEVEL UP!';
-    soundColor = colors.primaryLight;
   }
 
   return (
@@ -147,7 +144,7 @@ export const ComicConsequenceModal: React.FC<ComicConsequenceModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(5, 8, 15, 0.88)',
+    backgroundColor: 'rgba(0, 0, 0, 0.88)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
@@ -158,7 +155,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: 24,
     padding: 18,
-    borderWidth: 2.5,
+    borderWidth: 2,
     borderColor: colors.surfaceBorder,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 12 },
@@ -181,7 +178,7 @@ const styles = StyleSheet.create({
   soundText: {
     fontSize: 14,
     fontWeight: '900',
-    color: '#0B0F19',
+    color: '#000000',
     letterSpacing: 0.5,
   },
   healthTag: {
@@ -189,6 +186,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   healthText: {
     fontSize: 12,
@@ -206,7 +205,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   panelHighlight: {
-    borderColor: 'rgba(245, 158, 11, 0.4)',
+    borderColor: '#FFFFFF',
   },
   panelHeader: {
     flexDirection: 'row',
@@ -243,23 +242,18 @@ const styles = StyleSheet.create({
   punchlineText: {
     fontSize: 14,
     fontWeight: '800',
-    color: colors.primaryLight,
+    color: '#FFFFFF',
     fontStyle: 'italic',
     lineHeight: 20,
   },
   nextTurnButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingVertical: 15,
     alignItems: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
   },
   nextTurnText: {
-    color: '#0B0F19',
+    color: '#000000',
     fontSize: 16,
     fontWeight: '900',
     letterSpacing: 0.5,

@@ -132,35 +132,35 @@ export const InteractiveAvatar: React.FC<InteractiveAvatarProps> = ({
             cy="40"
             r="38"
             fill={auraColor}
-            fillOpacity={mood === 'panic' ? 0.35 : 0.2}
+            fillOpacity={mood === 'panic' ? 0.25 : 0.08}
             stroke={auraColor}
-            strokeWidth="2"
+            strokeWidth="1.5"
           />
 
           {/* Head */}
-          <Circle cx="40" cy="40" r="32" fill="#1E293B" />
-          <Circle cx="40" cy="40" r="30" fill="#334155" />
+          <Circle cx="40" cy="40" r="32" fill="#121212" />
+          <Circle cx="40" cy="40" r="30" fill="#222222" />
 
           {/* Eyes with Reanimated blinking */}
           <Animated.View style={[StyleSheet.absoluteFill, animatedEyeStyle]}>
             <Svg width={size} height={size} viewBox="0 0 80 80">
-              <Circle cx="32" cy="39" r="4.5" fill="#F8FAFC" />
-              <Circle cx="48" cy="39" r="4.5" fill="#F8FAFC" />
-              <Circle cx="33" cy="39" r="2.5" fill="#0F172A" />
-              <Circle cx="49" cy="39" r="2.5" fill="#0F172A" />
+              <Circle cx="32" cy="39" r="4.5" fill="#FFFFFF" />
+              <Circle cx="48" cy="39" r="4.5" fill="#FFFFFF" />
+              <Circle cx="33" cy="39" r="2.5" fill="#000000" />
+              <Circle cx="49" cy="39" r="2.5" fill="#000000" />
             </Svg>
           </Animated.View>
 
           {/* Eyebrows */}
-          <Path d={eyebrowPathLeft} stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-          <Path d={eyebrowPathRight} stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          <Path d={eyebrowPathLeft} stroke="#A3A3A3" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          <Path d={eyebrowPathRight} stroke="#A3A3A3" strokeWidth="2.5" strokeLinecap="round" fill="none" />
 
           {/* Mouth */}
-          <Path d={mouthPath} stroke="#F1F5F9" strokeWidth="3" strokeLinecap="round" fill="none" />
+          <Path d={mouthPath} stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none" />
 
-          {/* Cheerful Blush for happy/confident */}
+          {/* Cheerful Subtle Blush for happy/confident */}
           {(mood === 'happy' || mood === 'confident') && (
-            <G fill="#FB7185" fillOpacity="0.4">
+            <G fill="#FFFFFF" fillOpacity="0.12">
               <Circle cx="23" cy="45" r="4" />
               <Circle cx="57" cy="45" r="4" />
             </G>
@@ -170,8 +170,8 @@ export const InteractiveAvatar: React.FC<InteractiveAvatarProps> = ({
           {showSweat && (
             <Path
               d="M 58 24 Q 63 30 60 34 Q 57 37 54 34 Q 52 30 58 24 Z"
-              fill="#38BDF8"
-              fillOpacity="0.9"
+              fill="#E5E5E5"
+              fillOpacity="0.8"
             />
           )}
         </Svg>

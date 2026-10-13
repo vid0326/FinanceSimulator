@@ -138,7 +138,7 @@ export const WhatIfChart: React.FC<WhatIfChartProps> = ({ dataPoints, height = 2
           cy={getY(selectedPoint.baselineNetWorth)}
           r="4.5"
           fill={colors.chartBaseline}
-          stroke="#0B0F19"
+          stroke="#000000"
           strokeWidth="2"
         />
         <Circle
@@ -146,7 +146,7 @@ export const WhatIfChart: React.FC<WhatIfChartProps> = ({ dataPoints, height = 2
           cy={getY(selectedPoint.whatIfNetWorth)}
           r="5.5"
           fill={colors.chartWhatIf}
-          stroke="#0B0F19"
+          stroke="#000000"
           strokeWidth="2"
         />
       </Svg>
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceElevated,
   },
   scrubPillActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#FFFFFF',
   },
   scrubText: {
     fontSize: 11,
@@ -245,6 +245,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   scrubTextActive: {
-    color: '#0B0F19',
+    color: '#000000',
+    fontWeight: '800',
   },
 });

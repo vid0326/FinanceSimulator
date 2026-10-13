@@ -39,13 +39,13 @@ export const StatCard: React.FC<StatCardProps> = ({
       style={[
         styles.card,
         {
-          borderColor: accentColor + '33', // 20% opacity border
+          borderColor: colors.surfaceBorder,
         },
       ]}
     >
       <View style={styles.headerRow}>
-        <View style={[styles.iconContainer, { backgroundColor: accentColor + '20' }]}>
-          <Ionicons name={iconName} size={18} color={accentColor} />
+        <View style={styles.iconContainer}>
+          <Ionicons name={iconName} size={18} color="#FFFFFF" />
         </View>
         {deltaText && (
           <View
@@ -96,6 +96,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   deltaBadge: {
     paddingHorizontal: 6,

@@ -1,38 +1,44 @@
 /**
- * Design System Theme & Color Tokens
- * Premium fintech palette: Deep midnight background, emerald positive, coral negative, and warm amber highlights.
+ * Minimalist Black & White Design System
+ * Clean, high-contrast, distraction-free monochrome aesthetic with subtle functional accents.
  */
 
 export const colors = {
-  background: '#0B0F19',
-  surface: '#131B2E',
-  surfaceElevated: '#1B2640',
-  surfaceBorder: '#273554',
-  
-  primary: '#10B981',        // Emerald Green (Money / Growth)
-  primaryLight: '#34D399',
-  primaryDark: '#059669',
-  primaryGlow: 'rgba(16, 185, 129, 0.15)',
+  background: '#000000',            // True Deep Black
+  surface: '#111111',               // Clean Matte Dark Surface
+  surfaceElevated: '#191919',       // Slightly Elevated Card
+  surfaceBorder: '#282828',         // Crisp Minimalist Border
+  surfaceBorderLight: '#383838',    // Focused / Active Border
 
-  secondary: '#6366F1',      // Indigo (Intelligence / Coach)
-  secondaryLight: '#818CF8',
+  primary: '#FFFFFF',               // High-Contrast Pure White
+  primaryLight: '#F5F5F5',
+  primaryDark: '#D4D4D4',
+  primaryGlow: 'rgba(255, 255, 255, 0.08)',
 
-  accent: '#F59E0B',         // Amber Gold (Coins / Achievements)
-  accentLight: '#FBBF24',
-  accentGlow: 'rgba(245, 158, 11, 0.15)',
+  secondary: '#E5E5E5',             // Clean Off-White
+  secondaryLight: '#A3A3A3',        // Neutral Gray
 
-  danger: '#EF4444',         // Coral Red (Debt / Losses / Scams)
+  accent: '#FFFFFF',                // Clean White Accents
+  accentLight: '#E5E5E5',
+  accentGlow: 'rgba(255, 255, 255, 0.06)',
+
+  // Restrained Functional Colors (Only for critical financial signals)
+  positive: '#22C55E',              // Subtle Green (Profit / Inflow)
+  positiveLight: '#4ADE80',
+  positiveGlow: 'rgba(34, 197, 94, 0.12)',
+
+  danger: '#EF4444',                // Subtle Red (Debt / Outflow / Scams)
   dangerLight: '#F87171',
-  dangerGlow: 'rgba(239, 68, 68, 0.15)',
+  dangerGlow: 'rgba(239, 68, 68, 0.12)',
 
-  text: '#F9FAFB',
-  textSecondary: '#9CA3AF',
-  textMuted: '#6B7280',
+  text: '#FFFFFF',                  // Crisp White
+  textSecondary: '#A3A3A3',         // Muted Silver / Slate
+  textMuted: '#666666',            // Subtle Charcoal Gray
 
-  chartBaseline: '#60A5FA',   // Blue for Baseline
-  chartWhatIf: '#34D399',     // Green for What-If
-  chartDebt: '#F87171',
+  chartBaseline: '#666666',         // Muted Gray Curve (Current Path)
+  chartWhatIf: '#FFFFFF',           // Crisp White Curve (Boosted Path)
+  chartDebt: '#EF4444',
 
-  tabBar: '#0D1322',
-  tabBarBorder: '#1A233A',
+  tabBar: '#0A0A0A',
+  tabBarBorder: '#1F1F1F',
 };

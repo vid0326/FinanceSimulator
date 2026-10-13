@@ -136,8 +136,8 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
         >
           {/* Header Banner */}
           <View style={styles.cardHeader}>
-            <View style={[styles.iconCircle, { backgroundColor: event.accentColor + '25' }]}>
-              <Ionicons name={event.icon as any} size={24} color={event.accentColor} />
+            <View style={styles.iconCircle}>
+              <Ionicons name={event.icon as any} size={22} color="#FFFFFF" />
             </View>
             <View style={styles.categoryBadge}>
               <Text style={styles.categoryText}>{event.category.toUpperCase()}</Text>
@@ -154,13 +154,13 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
           {/* Dynamic Action Preview Hints */}
           <View style={styles.previewBox}>
             <View style={styles.previewRow}>
-              <Ionicons name="arrow-back" size={14} color={colors.dangerLight} />
+              <Ionicons name="arrow-back" size={14} color="#A3A3A3" />
               <Text style={styles.previewTextLeft}>
                 SWIPE LEFT: <Text style={styles.highlightText}>{optionLeft.title}</Text>
               </Text>
             </View>
             <View style={[styles.previewRow, { marginTop: 6 }]}>
-              <Ionicons name="arrow-forward" size={14} color={colors.primaryLight} />
+              <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
               <Text style={styles.previewTextRight}>
                 SWIPE RIGHT: <Text style={styles.highlightText}>{optionRight.title}</Text>
               </Text>
@@ -170,13 +170,13 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
           {/* Stamp Overlay: Right (Accept / Option A) */}
           <Animated.View style={[styles.stampBox, styles.rightStamp, { opacity: rightStampOpacity }]}>
             <Text style={styles.rightStampText}>CHOOSE RIGHT</Text>
-            <Text style={styles.stampSubText}>{optionRight.title}</Text>
+            <Text style={styles.rightStampSubText}>{optionRight.title}</Text>
           </Animated.View>
 
           {/* Stamp Overlay: Left (Decline / Option B) */}
           <Animated.View style={[styles.stampBox, styles.leftStamp, { opacity: leftStampOpacity }]}>
             <Text style={styles.leftStampText}>CHOOSE LEFT</Text>
-            <Text style={styles.stampSubText}>{optionLeft.title}</Text>
+            <Text style={styles.leftStampSubText}>{optionLeft.title}</Text>
           </Animated.View>
         </Animated.View>
       </View>
@@ -188,7 +188,7 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
           style={[styles.actionBtn, styles.leftBtn]}
           onPress={() => handleManualSelect(optionLeft, false)}
         >
-          <Ionicons name="close" size={26} color="#FFFFFF" />
+          <Ionicons name="close" size={24} color="#FFFFFF" />
           <Text style={styles.btnLabel} numberOfLines={1}>{optionLeft.title}</Text>
         </TouchableOpacity>
 
@@ -197,8 +197,8 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
           style={[styles.actionBtn, styles.rightBtn]}
           onPress={() => handleManualSelect(optionRight, true)}
         >
-          <Ionicons name="checkmark" size={26} color="#0B0F19" />
-          <Text style={[styles.btnLabel, { color: '#0B0F19' }]} numberOfLines={1}>
+          <Ionicons name="checkmark" size={24} color="#000000" />
+          <Text style={[styles.btnLabel, { color: '#000000' }]} numberOfLines={1}>
             {optionRight.title}
           </Text>
         </TouchableOpacity>
@@ -268,12 +268,17 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   categoryBadge: {
     backgroundColor: colors.surfaceElevated,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   categoryText: {
     fontSize: 10,
@@ -305,6 +310,8 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 14,
     marginTop: 8,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   previewRow: {
     flexDirection: 'row',
@@ -313,24 +320,24 @@ const styles = StyleSheet.create({
   },
   previewTextLeft: {
     fontSize: 12,
-    color: colors.dangerLight,
+    color: colors.textSecondary,
     fontWeight: '700',
     flex: 1,
   },
   previewTextRight: {
     fontSize: 12,
-    color: colors.primaryLight,
+    color: colors.textSecondary,
     fontWeight: '700',
     flex: 1,
   },
   highlightText: {
     color: colors.text,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   stampBox: {
     position: 'absolute',
     top: 40,
-    borderWidth: 3,
+    borderWidth: 2.5,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -338,20 +345,20 @@ const styles = StyleSheet.create({
   },
   rightStamp: {
     right: 20,
-    borderColor: colors.primary,
-    backgroundColor: 'rgba(16, 185, 129, 0.9)',
+    borderColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
     transform: [{ rotate: '12deg' }],
   },
   leftStamp: {
     left: 20,
-    borderColor: colors.danger,
-    backgroundColor: 'rgba(239, 68, 68, 0.9)',
+    borderColor: '#FFFFFF',
+    backgroundColor: '#1E1E1E',
     transform: [{ rotate: '-12deg' }],
   },
   rightStampText: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#0B0F19',
+    color: '#000000',
     letterSpacing: 1,
   },
   leftStampText: {
@@ -360,10 +367,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 1,
   },
-  stampSubText: {
+  rightStampSubText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#000000',
+    marginTop: 2,
+    maxWidth: 140,
+    textAlign: 'center',
+  },
+  leftStampSubText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#A3A3A3',
     marginTop: 2,
     maxWidth: 140,
     textAlign: 'center',
@@ -371,30 +386,26 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 20,
+    gap: 16,
     marginTop: 14,
     width: '100%',
     paddingHorizontal: 20,
   },
   actionBtn: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 13,
     paddingHorizontal: 16,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
   },
   leftBtn: {
-    backgroundColor: colors.danger,
-    shadowColor: colors.danger,
+    backgroundColor: colors.surfaceElevated,
+    borderWidth: 1.5,
+    borderColor: colors.surfaceBorderLight,
   },
   rightBtn: {
-    backgroundColor: colors.primary,
-    shadowColor: colors.primary,
+    backgroundColor: '#FFFFFF',
   },
   btnLabel: {
     color: '#FFFFFF',

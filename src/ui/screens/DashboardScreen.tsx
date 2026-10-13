@@ -11,6 +11,8 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
@@ -127,7 +129,7 @@ export const DashboardScreen: React.FC = () => {
             activeOpacity={0.85}
             onPress={handleAdvance}
           >
-            <Ionicons name="play-forward" size={18} color="#0B0F19" />
+            <Ionicons name="play-forward" size={18} color="#000000" />
             <Text style={styles.advanceButtonText}>
               Advance to Next Month ({profile.currentMonth === 12 ? 'Year End' : `Month ${profile.currentMonth + 1}`})
             </Text>
@@ -142,8 +144,8 @@ export const DashboardScreen: React.FC = () => {
             onPress={() => setActiveTab('life')}
           >
             <View style={styles.eventAlertLeft}>
-              <View style={[styles.eventAlertIcon, { backgroundColor: currentEvent.accentColor + '25' }]}>
-                <Ionicons name={currentEvent.icon as any} size={22} color={currentEvent.accentColor} />
+              <View style={styles.eventAlertIcon}>
+                <Ionicons name={currentEvent.icon as any} size={22} color="#FFFFFF" />
               </View>
               <View style={styles.eventAlertContent}>
                 <Text style={styles.eventAlertTag}>DECISION PENDING</Text>
@@ -251,6 +253,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
     padding: 16,
@@ -291,6 +294,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   levelText: {
     fontSize: 11,
@@ -302,6 +307,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   xpText: {
     fontSize: 11,
@@ -346,7 +353,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   advanceMonthButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#FFFFFF',
     borderRadius: 14,
     paddingVertical: 12,
     flexDirection: 'row',
@@ -355,7 +362,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   advanceButtonText: {
-    color: '#0B0F19',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '800',
   },
@@ -364,7 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     borderWidth: 1.5,
-    borderColor: colors.accent,
+    borderColor: colors.surfaceBorderLight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -383,6 +390,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+    backgroundColor: colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   eventAlertContent: {
     flex: 1,
