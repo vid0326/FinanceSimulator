@@ -1,6 +1,6 @@
 /**
- * Main Dashboard Screen
- * High-density financial snapshot: Net Worth, Health Gauge, Avatar mood, Balances, and Turn Advance.
+ * Main Dashboard Screen — Simplistic Minimalist UI
+ * Clean, calm financial snapshot with zero visual clutter.
  */
 
 import React, { useState } from 'react';
@@ -18,7 +18,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useSimulationStore } from '../../store/useSimulationStore';
 import { CurrencyText, formatINR } from '../components/CurrencyText';
-import { StatCard } from '../components/StatCard';
 import { HealthGauge } from '../components/HealthGauge';
 import { InteractiveAvatar, AvatarMood } from '../components/InteractiveAvatar';
 import { FlyingCoins } from '../components/FlyingCoins';
@@ -31,9 +30,7 @@ export const DashboardScreen: React.FC = () => {
   const balanceSheet = useSimulationStore((state) => state.balanceSheet);
   const budget = useSimulationStore((state) => state.budget);
   const health = useSimulationStore((state) => state.healthScore);
-  const lifeSatisfaction = useSimulationStore((state) => state.lifeSatisfaction);
   const currentEvent = useSimulationStore((state) => state.currentEvent);
-  const gamification = useSimulationStore((state) => state.gamification);
   const lastConsequence = useSimulationStore((state) => state.lastConsequence);
 
   const advanceMonth = useSimulationStore((state) => state.advanceMonth);
@@ -72,174 +69,137 @@ export const DashboardScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Top Bar: Profile & Avatar */}
+        {/* Minimal Header */}
         <View style={styles.topBar}>
-          <View style={styles.profileMeta}>
-            <Text style={styles.greetingText}>
-              Age {profile.currentAge} • Month {profile.currentMonth}
-            </Text>
+          <View>
             <Text style={styles.nameTitle}>{profile.name}</Text>
-            <View style={styles.badgeRow}>
-              <View style={styles.levelBadge}>
-                <Ionicons name="sparkles" size={12} color={colors.accent} />
-                <Text style={styles.levelText}>
-                  Lv.{gamification.level} {gamification.levelTitle}
-                </Text>
-              </View>
-              <View style={styles.xpBadge}>
-                <Text style={styles.xpText}>{gamification.xp} XP</Text>
-              </View>
-            </View>
-          </View>
-          <InteractiveAvatar mood={mood} size={72} />
-        </View>
-
-        {/* Hero Net Worth Card */}
-        <View style={styles.netWorthCard}>
-          <View style={styles.netWorthHeader}>
-            <Text style={styles.netWorthLabel}>Total Net Worth</Text>
-            <View
-              style={[
-                styles.cashFlowPill,
-                { backgroundColor: monthlyNetCashFlow >= 0 ? colors.primaryGlow : colors.dangerGlow },
-              ]}
-            >
-              <Ionicons
-                name={monthlyNetCashFlow >= 0 ? 'arrow-up' : 'arrow-down'}
-                size={12}
-                color={monthlyNetCashFlow >= 0 ? colors.primaryLight : colors.dangerLight}
-              />
-              <Text
-                style={[
-                  styles.cashFlowText,
-                  { color: monthlyNetCashFlow >= 0 ? colors.primaryLight : colors.dangerLight },
-                ]}
-              >
-                {monthlyNetCashFlow >= 0 ? '+' : ''}
-                {formatINR(monthlyNetCashFlow, true)}/mo
-              </Text>
-            </View>
-          </View>
-
-          <CurrencyText amount={balanceSheet.netWorth} style={styles.netWorthValue} />
-
-          {/* Turn Advancement Button */}
-          <TouchableOpacity
-            style={styles.advanceMonthButton}
-            activeOpacity={0.85}
-            onPress={handleAdvance}
-          >
-            <Ionicons name="play-forward" size={18} color="#000000" />
-            <Text style={styles.advanceButtonText}>
-              Advance to Next Month ({profile.currentMonth === 12 ? 'Year End' : `Month ${profile.currentMonth + 1}`})
+            <Text style={styles.metaText}>
+              Age {profile.currentAge} · Month {profile.currentMonth}
             </Text>
-          </TouchableOpacity>
+          </View>
+          <InteractiveAvatar mood={mood} size={54} />
         </View>
 
-        {/* Pending Scenario Dilemma Alert */}
+        {/* Hero Net Worth — Clean & Commanding */}
+        <View style={styles.heroSection}>
+          <Text style={styles.heroLabel}>NET WORTH</Text>
+          <CurrencyText amount={balanceSheet.netWorth} style={styles.heroAmount} />
+          <Text style={styles.cashFlowText}>
+            {monthlyNetCashFlow >= 0 ? '+' : ''}{formatINR(monthlyNetCashFlow)}/mo cash flow
+          </Text>
+        </View>
+
+        {/* Main Action Button */}
+        <TouchableOpacity
+          style={styles.advanceButton}
+          activeOpacity={0.85}
+          onPress={handleAdvance}
+        >
+          <Text style={styles.advanceButtonText}>
+            Advance to Month {profile.currentMonth === 12 ? 1 : profile.currentMonth + 1} →
+          </Text>
+        </TouchableOpacity>
+
+        {/* Pending Decision Banner (clean single-line notice) */}
         {currentEvent && (
           <TouchableOpacity
-            activeOpacity={0.88}
-            style={styles.eventAlertCard}
+            activeOpacity={0.85}
+            style={styles.eventNotice}
             onPress={() => setActiveTab('life')}
           >
-            <View style={styles.eventAlertLeft}>
-              <View style={styles.eventAlertIcon}>
-                <Ionicons name={currentEvent.icon as any} size={22} color="#FFFFFF" />
-              </View>
-              <View style={styles.eventAlertContent}>
-                <Text style={styles.eventAlertTag}>DECISION PENDING</Text>
-                <Text style={styles.eventAlertTitle} numberOfLines={1}>
+            <View style={styles.eventNoticeLeft}>
+              <Ionicons name="alert-circle" size={18} color="#FFFFFF" />
+              <View style={styles.eventNoticeTextWrap}>
+                <Text style={styles.eventNoticeTag}>DECISION PENDING</Text>
+                <Text style={styles.eventNoticeTitle} numberOfLines={1}>
                   {currentEvent.title}
-                </Text>
-                <Text style={styles.eventAlertSubtitle} numberOfLines={1}>
-                  {currentEvent.headline}
                 </Text>
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            <Ionicons name="arrow-forward" size={16} color="#A3A3A3" />
           </TouchableOpacity>
         )}
 
-        {/* Financial Health Section */}
-        <View style={styles.healthSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Financial Health Score</Text>
-            <TouchableOpacity onPress={() => setActiveTab('coach')}>
-              <Text style={styles.askCoachLink}>Why this score? →</Text>
+        {/* Financial Accounts List (Clean Rows instead of 2x2 bulky cards) */}
+        <View style={styles.sectionWrap}>
+          <Text style={styles.sectionHeader}>ACCOUNTS & BALANCES</Text>
+          <View style={styles.accountsCard}>
+            <TouchableOpacity
+              style={styles.accountRow}
+              activeOpacity={0.7}
+              onPress={() => setActiveTab('life')}
+            >
+              <View style={styles.accountRowLeft}>
+                <Ionicons name="wallet-outline" size={18} color="#FFFFFF" />
+                <Text style={styles.accountName}>Liquid Cash</Text>
+              </View>
+              <CurrencyText amount={balanceSheet.liquidCash} style={styles.accountVal} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.accountRow}
+              activeOpacity={0.7}
+              onPress={() => setActiveTab('coach')}
+            >
+              <View style={styles.accountRowLeft}>
+                <Ionicons name="shield-checkmark-outline" size={18} color="#FFFFFF" />
+                <Text style={styles.accountName}>Emergency Fund</Text>
+              </View>
+              <CurrencyText amount={balanceSheet.emergencyFund} style={styles.accountVal} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.accountRow}
+              activeOpacity={0.7}
+              onPress={() => setActiveTab('portfolio')}
+            >
+              <View style={styles.accountRowLeft}>
+                <Ionicons name="trending-up-outline" size={18} color="#FFFFFF" />
+                <Text style={styles.accountName}>Investments</Text>
+              </View>
+              <CurrencyText amount={balanceSheet.investmentsTotal} style={styles.accountVal} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.accountRow, styles.accountRowLast]}
+              activeOpacity={0.7}
+              onPress={() => setActiveTab('life')}
+            >
+              <View style={styles.accountRowLeft}>
+                <Ionicons name="card-outline" size={18} color="#FFFFFF" />
+                <Text style={styles.accountName}>Total Liabilities</Text>
+              </View>
+              <CurrencyText amount={balanceSheet.liabilitiesTotal} style={styles.accountVal} />
             </TouchableOpacity>
           </View>
+        </View>
 
-          <View style={styles.healthCard}>
-            <HealthGauge score={health.totalScore} grade={health.grade} size={110} />
-            <View style={styles.healthDetails}>
-              <View style={styles.healthPillRow}>
-                <View style={styles.strengthPill}>
-                  <Ionicons name="checkmark-circle" size={14} color={colors.primaryLight} />
-                  <Text style={styles.strengthText}>{health.keyStrength}</Text>
-                </View>
-              </View>
-              <View style={styles.healthPillRow}>
-                <View style={styles.vulnerabilityPill}>
-                  <Ionicons name="alert-circle" size={14} color={colors.dangerLight} />
-                  <Text style={styles.vulnerabilityText}>{health.keyVulnerability}</Text>
-                </View>
-              </View>
-              <Text style={styles.healthAdvice}>
-                Life Satisfaction: <Text style={{ color: colors.accent, fontWeight: '800' }}>{lifeSatisfaction}/100</Text>
+        {/* Health Summary Card */}
+        <View style={styles.sectionWrap}>
+          <Text style={styles.sectionHeader}>FINANCIAL HEALTH</Text>
+          <TouchableOpacity
+            style={styles.healthCard}
+            activeOpacity={0.8}
+            onPress={() => setActiveTab('coach')}
+          >
+            <HealthGauge score={health.totalScore} grade={health.grade} size={76} strokeWidth={6} />
+            <View style={styles.healthInfo}>
+              <Text style={styles.healthScoreTitle}>
+                Score: {health.totalScore}/100 · Grade {health.grade}
+              </Text>
+              <Text style={styles.healthStrengthText}>
+                {health.keyStrength}
+              </Text>
+              <Text style={styles.healthCoachLink}>
+                Tap to consult AI Coach →
               </Text>
             </View>
-          </View>
-        </View>
-
-        {/* Core Financial Balances Grid */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Financial Assets & Liabilities</Text>
-        </View>
-
-        <View style={styles.gridRow}>
-          <StatCard
-            title="Liquid Cash"
-            amount={balanceSheet.liquidCash}
-            iconName="wallet-outline"
-            accentColor={colors.primary}
-            subtitle="Available to spend"
-            onPress={() => setActiveTab('life')}
-          />
-          <StatCard
-            title="Emergency Fund"
-            amount={balanceSheet.emergencyFund}
-            iconName="shield-checkmark-outline"
-            accentColor={colors.accent}
-            subtitle="3-6 month safety"
-            onPress={() => setActiveTab('coach')}
-          />
-        </View>
-
-        <View style={styles.gridRow}>
-          <StatCard
-            title="Investments"
-            amount={balanceSheet.investmentsTotal}
-            iconName="trending-up-outline"
-            accentColor={colors.chartBaseline}
-            subtitle={`${balanceSheet.assets.length} asset class(es)`}
-            onPress={() => setActiveTab('portfolio')}
-          />
-          <StatCard
-            title="Total Debt"
-            amount={balanceSheet.liabilitiesTotal}
-            iconName="card-outline"
-            accentColor={colors.danger}
-            subtitle={balanceSheet.liabilitiesTotal > 0 ? `${balanceSheet.liabilities.length} active loan(s)` : 'Debt-Free!'}
-            onPress={() => setActiveTab('life')}
-          />
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* Reanimated Flying Coins Celebration */}
+      {/* Celebration & Consequences */}
       <FlyingCoins triggerKey={coinBurstKey} />
-
-      {/* Consequence Modal */}
       <ConsequenceModal
         visible={lastConsequence !== null}
         consequence={lastConsequence}
@@ -252,242 +212,172 @@ export const DashboardScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#000000',
     paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
-    padding: 16,
-    paddingBottom: 60,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 40,
   },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  profileMeta: {
-    flex: 1,
-  },
-  greetingText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    marginBottom: 20,
   },
   nameTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '900',
-    color: colors.text,
-    marginVertical: 2,
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
   },
-  badgeRow: {
-    flexDirection: 'row',
-    gap: 6,
+  metaText: {
+    fontSize: 13,
+    color: '#888888',
     marginTop: 2,
+    fontWeight: '600',
   },
-  levelBadge: {
-    flexDirection: 'row',
+  heroSection: {
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.surfaceElevated,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  levelText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.accent,
-  },
-  xpBadge: {
-    backgroundColor: colors.surfaceElevated,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  xpText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.textSecondary,
-  },
-  netWorthCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    paddingVertical: 16,
     marginBottom: 16,
   },
-  netWorthHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  heroLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#888888',
+    letterSpacing: 1.2,
     marginBottom: 6,
   },
-  netWorthLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.textSecondary,
-  },
-  cashFlowPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+  heroAmount: {
+    fontSize: 40,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -1,
   },
   cashFlowText: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 13,
+    color: '#A3A3A3',
+    fontWeight: '600',
+    marginTop: 6,
   },
-  netWorthValue: {
-    fontSize: 32,
-    fontWeight: '900',
-    letterSpacing: -0.5,
-    marginBottom: 16,
-  },
-  advanceMonthButton: {
+  advanceButton: {
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    paddingVertical: 15,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+    marginBottom: 18,
   },
   advanceButtonText: {
     color: '#000000',
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: 15,
+    fontWeight: '900',
   },
-  eventAlertCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1.5,
-    borderColor: colors.surfaceBorderLight,
+  eventNotice: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    backgroundColor: '#141414',
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
+    marginBottom: 20,
   },
-  eventAlertLeft: {
+  eventNoticeLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
     flex: 1,
-    marginRight: 10,
+    marginRight: 8,
   },
-  eventAlertIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    backgroundColor: colors.surfaceElevated,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  eventAlertContent: {
+  eventNoticeTextWrap: {
     flex: 1,
   },
-  eventAlertTag: {
+  eventNoticeTag: {
     fontSize: 10,
     fontWeight: '800',
-    color: colors.accent,
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
-  eventAlertTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: colors.text,
-    marginTop: 1,
-  },
-  eventAlertSubtitle: {
-    fontSize: 12,
-    color: colors.textSecondary,
+  eventNoticeTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#E5E5E5',
     marginTop: 2,
   },
-  healthSection: {
-    marginBottom: 16,
+  sectionWrap: {
+    marginBottom: 20,
   },
   sectionHeader: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#666666',
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  accountsCard: {
+    backgroundColor: '#111111',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#222222',
+  },
+  accountRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
-    marginTop: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderColor: '#1C1C1C',
   },
-  sectionTitle: {
+  accountRowLast: {
+    borderBottomWidth: 0,
+  },
+  accountRowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  accountName: {
     fontSize: 14,
-    fontWeight: '800',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontWeight: '600',
+    color: '#E5E5E5',
   },
-  askCoachLink: {
-    fontSize: 12,
+  accountVal: {
+    fontSize: 15,
     fontWeight: '700',
-    color: colors.secondaryLight,
+    color: '#FFFFFF',
   },
   healthCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 18,
+    backgroundColor: '#111111',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#222222',
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    gap: 16,
   },
-  healthDetails: {
+  healthInfo: {
     flex: 1,
-    marginLeft: 16,
-    gap: 8,
   },
-  healthPillRow: {
-    flexDirection: 'row',
+  healthScoreTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
-  strengthPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.primaryGlow,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  strengthText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.primaryLight,
-  },
-  vulnerabilityPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.dangerGlow,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  vulnerabilityText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.dangerLight,
-  },
-  healthAdvice: {
+  healthStrengthText: {
     fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
+    color: '#A3A3A3',
+    marginTop: 3,
   },
-  gridRow: {
-    flexDirection: 'row',
-    marginBottom: 8,
+  healthCoachLink: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginTop: 6,
   },
 });

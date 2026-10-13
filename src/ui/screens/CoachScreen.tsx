@@ -1,6 +1,6 @@
 /**
- * AI Financial Coach Chat & Diagnostics Screen
- * Context-aware pedagogical mentor answering user queries and explaining financial decisions.
+ * AI Financial Coach Screen — Simplistic Minimalist UI
+ * Clean, distraction-free advisory conversation.
  */
 
 import React, { useState } from 'react';
@@ -17,12 +17,10 @@ import {
   StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
 import { useSimulationStore } from '../../store/useSimulationStore';
 import { BehaviorRules } from '../../intelligence/behaviorRules';
 
 export const CoachScreen: React.FC = () => {
-  const profile = useSimulationStore((state) => state.profile);
   const balanceSheet = useSimulationStore((state) => state.balanceSheet);
   const health = useSimulationStore((state) => state.healthScore);
   const decisionLogs = useSimulationStore((state) => state.decisionLogs);
@@ -37,7 +35,7 @@ export const CoachScreen: React.FC = () => {
     'Why is my health score at this level?',
     'Should I repay debt or invest in SIP?',
     'How does compounding work for my age?',
-    'What is an emergency fund and why do I need one?',
+    'What is an emergency fund?',
   ];
 
   const handleSend = (textToSend?: string) => {
@@ -53,22 +51,13 @@ export const CoachScreen: React.FC = () => {
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Coach Header & Archetype Banner */}
+        {/* Minimal Header */}
         <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.coachAvatar}>
-              <Ionicons name="sparkles" size={18} color="#000000" />
-            </View>
-            <View>
-              <Text style={styles.coachTitle}>AI Financial Coach</Text>
-              <Text style={styles.archetypeText}>
-                Archetype: <Text style={{ color: colors.secondaryLight, fontWeight: '800' }}>{diagnosis.primaryTrait}</Text>
-              </Text>
-            </View>
-          </View>
-          <View style={styles.offlinePill}>
-            <View style={styles.onlineDot} />
-            <Text style={styles.offlineText}>Active</Text>
+          <View>
+            <Text style={styles.headerTitle}>Financial Coach</Text>
+            <Text style={styles.archetypeText}>
+              Persona: {diagnosis.primaryTrait}
+            </Text>
           </View>
         </View>
 
@@ -85,12 +74,6 @@ export const CoachScreen: React.FC = () => {
                 key={msg.id}
                 style={[styles.messageBubble, isUser ? styles.userBubble : styles.coachBubble]}
               >
-                {!isUser && (
-                  <View style={styles.coachHeaderRow}>
-                    <Ionicons name="school" size={14} color={colors.secondaryLight} />
-                    <Text style={styles.coachBubbleTag}>Financial Coach</Text>
-                  </View>
-                )}
                 <Text style={[styles.messageText, isUser ? styles.userText : styles.coachText]}>
                   {msg.text}
                 </Text>
@@ -99,7 +82,7 @@ export const CoachScreen: React.FC = () => {
           })}
         </ScrollView>
 
-        {/* Quick Question Pills */}
+        {/* Quick Prompts */}
         <View style={styles.quickPromptsContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {quickPrompts.map((prompt, idx) => (
@@ -115,14 +98,14 @@ export const CoachScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* Input Bar */}
+        {/* Minimal Input Bar */}
         <View style={styles.inputBar}>
           <TextInput
             style={styles.textInput}
             value={inputQuery}
             onChangeText={setInputQuery}
-            placeholder="Ask your coach anything about money..."
-            placeholderTextColor={colors.textMuted}
+            placeholder="Ask anything about your money..."
+            placeholderTextColor="#666666"
             onSubmitEditing={() => handleSend()}
           />
           <TouchableOpacity
@@ -141,96 +124,48 @@ export const CoachScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#000000',
     paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderColor: colors.surfaceBorder,
-    backgroundColor: colors.surface,
+    borderColor: '#1C1C1C',
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  coachAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  coachTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: colors.text,
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
   },
   archetypeText: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    marginTop: 1,
-  },
-  offlinePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: colors.surfaceElevated,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  onlineDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#FFFFFF',
-  },
-  offlineText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.primaryLight,
+    fontSize: 12,
+    color: '#888888',
+    marginTop: 2,
+    fontWeight: '600',
   },
   messagesScroll: {
     flex: 1,
   },
   messagesContent: {
-    padding: 16,
+    padding: 20,
     gap: 12,
   },
   messageBubble: {
-    maxWidth: '85%',
+    maxWidth: '82%',
     borderRadius: 16,
-    padding: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   coachBubble: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.surface,
+    backgroundColor: '#141414',
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  coachHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginBottom: 6,
-  },
-  coachBubbleTag: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: colors.secondaryLight,
-    textTransform: 'uppercase',
+    borderColor: '#262626',
   },
   userBubble: {
     alignSelf: 'flex-end',
@@ -241,62 +176,62 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   coachText: {
-    color: colors.text,
+    color: '#E5E5E5',
+    fontWeight: '500',
   },
   userText: {
     color: '#000000',
     fontWeight: '700',
   },
   quickPromptsContainer: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderTopWidth: 1,
-    borderColor: colors.surfaceBorder,
-    backgroundColor: colors.surface,
+    borderColor: '#1C1C1C',
   },
   quickPromptPill: {
-    backgroundColor: colors.surfaceElevated,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 12,
+    backgroundColor: '#141414',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: '#262626',
   },
   quickPromptText: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.textSecondary,
+    color: '#A3A3A3',
   },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    backgroundColor: colors.surface,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     gap: 8,
     borderTopWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: '#1C1C1C',
   },
   textInput: {
     flex: 1,
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: 14,
+    backgroundColor: '#141414',
+    borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    color: colors.text,
+    color: '#FFFFFF',
     fontSize: 14,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: '#262626',
   },
   sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   sendButtonDisabled: {
-    opacity: 0.3,
+    opacity: 0.25,
   },
 });

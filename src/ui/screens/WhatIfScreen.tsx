@@ -1,6 +1,6 @@
 /**
- * What-If Sandbox Simulator Screen
- * Features the TimeMachineDial, analog age scrubber, and split-screen alternate reality mirror.
+ * What-If Sandbox Simulator Screen — Simplistic Minimalist UI
+ * Clean, distraction-free forward wealth projector.
  */
 
 import React, { useState, useMemo } from 'react';
@@ -14,8 +14,6 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
 import { useSimulationStore } from '../../store/useSimulationStore';
 import { WhatIfEngine } from '../../core/whatif/WhatIfEngine';
 import { WhatIfScenarioInput, WhatIfComparisonResult } from '../../core/types/whatif';
@@ -34,7 +32,6 @@ export const WhatIfScreen: React.FC = () => {
   const [additionalSIP, setAdditionalSIP] = useState<number>(5000);
   const [selectedAge, setSelectedAge] = useState<number>(profile.currentAge + 5);
 
-  // Compute projection horizon in months from selectedAge
   const horizonMonths = Math.max(12, (selectedAge - profile.currentAge) * 12);
 
   const scenarioInput: WhatIfScenarioInput = useMemo(() => {
@@ -69,7 +66,7 @@ export const WhatIfScreen: React.FC = () => {
 
       case 'delay_investing':
         return {
-          title: 'Delay Investing by 5 Years (Start at 27 vs 22)',
+          title: 'Delay Investing by 5 Years',
           monthlyAdditionalSavings: 0,
           monthlyAdditionalSIP: 0,
           delayInvestingByYears: 5,
@@ -80,7 +77,7 @@ export const WhatIfScreen: React.FC = () => {
 
       case 'job_loss':
         return {
-          title: 'Survive 4-Month Job Loss Gap',
+          title: 'Survive 4-Month Job Loss',
           monthlyAdditionalSavings: 0,
           monthlyAdditionalSIP: 0,
           delayInvestingByYears: 0,
@@ -104,21 +101,20 @@ export const WhatIfScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {/* Minimal Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>“What If?” Time Machine</Text>
+          <Text style={styles.title}>What-If Simulator</Text>
           <Text style={styles.subtitle}>
-            Spin the dial and see how today's choices shape your wealth at Age {selectedAge}.
+            Test financial scenarios before making real moves.
           </Text>
         </View>
 
-        {/* Preset Selector Tabs */}
+        {/* Clean Scenario Pills */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
           <TouchableOpacity
             style={[styles.presetTab, activePreset === 'extra_sip' && styles.presetTabActive]}
             onPress={() => setActivePreset('extra_sip')}
           >
-            <Ionicons name="trending-up" size={16} color={activePreset === 'extra_sip' ? '#000000' : '#FFFFFF'} />
             <Text style={[styles.presetTabText, activePreset === 'extra_sip' && styles.presetTabTextActive]}>
               +₹5k SIP
             </Text>
@@ -128,7 +124,6 @@ export const WhatIfScreen: React.FC = () => {
             style={[styles.presetTab, activePreset === 'bike_loan' && styles.presetTabActive]}
             onPress={() => setActivePreset('bike_loan')}
           >
-            <Ionicons name="bicycle" size={16} color={activePreset === 'bike_loan' ? '#000000' : '#FFFFFF'} />
             <Text style={[styles.presetTabText, activePreset === 'bike_loan' && styles.presetTabTextActive]}>
               Vehicle Loan
             </Text>
@@ -138,9 +133,8 @@ export const WhatIfScreen: React.FC = () => {
             style={[styles.presetTab, activePreset === 'delay_investing' && styles.presetTabActive]}
             onPress={() => setActivePreset('delay_investing')}
           >
-            <Ionicons name="time" size={16} color={activePreset === 'delay_investing' ? '#000000' : '#FFFFFF'} />
             <Text style={[styles.presetTabText, activePreset === 'delay_investing' && styles.presetTabTextActive]}>
-              Delay 5 Years
+              Delay 5 Yrs
             </Text>
           </TouchableOpacity>
 
@@ -148,14 +142,13 @@ export const WhatIfScreen: React.FC = () => {
             style={[styles.presetTab, activePreset === 'job_loss' && styles.presetTabActive]}
             onPress={() => setActivePreset('job_loss')}
           >
-            <Ionicons name="alert-circle" size={16} color={activePreset === 'job_loss' ? '#000000' : '#FFFFFF'} />
             <Text style={[styles.presetTabText, activePreset === 'job_loss' && styles.presetTabTextActive]}>
               Job Loss
             </Text>
           </TouchableOpacity>
         </ScrollView>
 
-        {/* Interactive Time Machine Scrubber Dial */}
+        {/* Interactive Age Scrubber & Comparison */}
         <TimeMachineDial
           currentAge={profile.currentAge}
           selectedAge={selectedAge}
@@ -164,36 +157,30 @@ export const WhatIfScreen: React.FC = () => {
           whatIfWealth={comparisonResult.whatIfFinalNetWorth}
         />
 
-        {/* Stepper Buttons for Extra SIP */}
+        {/* Stepper for Extra SIP (if selected) */}
         {activePreset === 'extra_sip' && (
-          <View style={styles.sipSelector}>
-            <Text style={styles.controlLabel}>Select Additional Monthly SIP:</Text>
-            <View style={styles.sipPillRow}>
-              {[2000, 5000, 10000].map((amt) => (
-                <TouchableOpacity
-                  key={amt}
-                  style={[styles.sipPill, additionalSIP === amt && styles.sipPillActive]}
-                  onPress={() => setAdditionalSIP(amt)}
-                >
-                  <Text style={[styles.sipPillText, additionalSIP === amt && styles.sipPillTextActive]}>
-                    +{formatINR(amt)}/mo
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+          <View style={styles.sipPillRow}>
+            {[2000, 5000, 10000].map((amt) => (
+              <TouchableOpacity
+                key={amt}
+                style={[styles.sipPill, additionalSIP === amt && styles.sipPillActive]}
+                onPress={() => setAdditionalSIP(amt)}
+              >
+                <Text style={[styles.sipPillText, additionalSIP === amt && styles.sipPillTextActive]}>
+                  +{formatINR(amt)}/mo
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         )}
 
-        {/* Interactive Dual Projection Chart */}
-        <WhatIfChart dataPoints={comparisonResult.chartPoints} height={210} />
+        {/* Minimalist Dual Curve SVG Chart */}
+        <WhatIfChart dataPoints={comparisonResult.chartPoints} height={170} />
 
-        {/* Comic Punchline Card */}
-        <View style={styles.punchlineCard}>
-          <View style={styles.punchlineHeader}>
-            <Ionicons name="bulb" size={16} color={colors.accent} />
-            <Text style={styles.punchlineTitle}>THE PUNCHLINE</Text>
-          </View>
-          <Text style={styles.punchlineBody}>
+        {/* Clean Takeaway Note */}
+        <View style={styles.takeawayCard}>
+          <Text style={styles.takeawayTitle}>KEY TAKEAWAY</Text>
+          <Text style={styles.takeawayBody}>
             {comparisonResult.keyEducationalTakeaway}
           </Text>
         </View>
@@ -205,41 +192,41 @@ export const WhatIfScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#000000',
     paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
-    padding: 16,
-    paddingBottom: 60,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 40,
   },
   header: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '900',
-    color: colors.text,
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 13,
-    color: colors.textSecondary,
+    color: '#888888',
     marginTop: 2,
+    fontWeight: '500',
   },
   presetScroll: {
     flexDirection: 'row',
     marginBottom: 10,
   },
   presetTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.surface,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    backgroundColor: '#141414',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
     borderRadius: 12,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: '#262626',
   },
   presetTabActive: {
     backgroundColor: '#FFFFFF',
@@ -247,77 +234,59 @@ const styles = StyleSheet.create({
   },
   presetTabText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: colors.textSecondary,
+    fontWeight: '700',
+    color: '#A3A3A3',
   },
   presetTabTextActive: {
     color: '#000000',
-  },
-  sipSelector: {
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    padding: 12,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  controlLabel: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    marginBottom: 6,
+    fontWeight: '900',
   },
   sipPillRow: {
     flexDirection: 'row',
     gap: 8,
+    marginVertical: 8,
   },
   sipPill: {
     flex: 1,
     paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: colors.surfaceElevated,
+    borderRadius: 10,
+    backgroundColor: '#141414',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: '#262626',
   },
   sipPillActive: {
     backgroundColor: '#FFFFFF',
     borderColor: '#FFFFFF',
   },
   sipPillText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
-    color: colors.textSecondary,
+    color: '#A3A3A3',
   },
   sipPillTextActive: {
     color: '#000000',
     fontWeight: '800',
   },
-  punchlineCard: {
-    backgroundColor: colors.surface,
+  takeawayCard: {
+    backgroundColor: '#111111',
     borderRadius: 16,
-    padding: 14,
+    padding: 16,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-    marginTop: 10,
+    borderColor: '#222222',
+    marginTop: 8,
   },
-  punchlineHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  takeawayTitle: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#666666',
+    letterSpacing: 0.8,
     marginBottom: 4,
   },
-  punchlineTitle: {
-    fontSize: 11,
-    fontWeight: '900',
-    color: colors.accent,
-    letterSpacing: 0.5,
-  },
-  punchlineBody: {
+  takeawayBody: {
     fontSize: 13,
-    color: colors.text,
+    color: '#E5E5E5',
     lineHeight: 18,
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });

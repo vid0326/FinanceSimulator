@@ -1,9 +1,9 @@
 /**
- * SwipeDilemmaCard — "Reigns / Tinder" Style Tactile Decision Card
- * Built with PanResponder and Animated for fluid 60fps tilt and swipe physics in Expo Go.
+ * SwipeDilemmaCard — Clean, Minimalist Decision Card
+ * Tactile swipe physics with zero visual clutter.
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -15,9 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { colors } from '../theme/colors';
 import { LifeScenarioEvent, DecisionOption } from '../../core/types/events';
-import { formatINR } from './CurrencyText';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 0.28 * SCREEN_WIDTH;
@@ -29,11 +27,10 @@ interface SwipeDilemmaCardProps {
 
 export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSelectOption }) => {
   const pan = useRef(new Animated.ValueXY()).current;
-  const [optionIndex, setOptionIndex] = useState(0);
 
-  // Pick left option (Option B or 0) and right option (Option A or 1)
-  const optionLeft = event.options[1] || event.options[0];
+  // Option Right (A / primary) and Option Left (B / alternative)
   const optionRight = event.options[0];
+  const optionLeft = event.options[1] || event.options[0];
 
   const triggerHaptic = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium) => {
     try {
@@ -51,29 +48,26 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
       },
       onPanResponderRelease: (evt, gestureState) => {
         if (gestureState.dx > SWIPE_THRESHOLD) {
-          // Swipe Right -> Option Right
           triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
           Animated.timing(pan, {
             toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
-            duration: 250,
+            duration: 220,
             useNativeDriver: false,
           }).start(() => {
             onSelectOption(optionRight);
             pan.setValue({ x: 0, y: 0 });
           });
         } else if (gestureState.dx < -SWIPE_THRESHOLD) {
-          // Swipe Left -> Option Left
           triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
           Animated.timing(pan, {
             toValue: { x: -SCREEN_WIDTH - 100, y: gestureState.dy },
-            duration: 250,
+            duration: 220,
             useNativeDriver: false,
           }).start(() => {
             onSelectOption(optionLeft);
             pan.setValue({ x: 0, y: 0 });
           });
         } else {
-          // Reset to center
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
             friction: 5,
@@ -85,14 +79,12 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
     })
   ).current;
 
-  // Rotation based on X displacement
   const rotate = pan.x.interpolate({
     inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
-    outputRange: ['-12deg', '0deg', '12deg'],
+    outputRange: ['-10deg', '0deg', '10deg'],
     extrapolate: 'clamp',
   });
 
-  // Stamp opacities
   const rightStampOpacity = pan.x.interpolate({
     inputRange: [20, SWIPE_THRESHOLD],
     outputRange: [0, 1],
@@ -109,7 +101,7 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
     triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
     Animated.timing(pan, {
       toValue: { x: toRight ? SCREEN_WIDTH + 80 : -SCREEN_WIDTH - 80, y: 0 },
-      duration: 240,
+      duration: 200,
       useNativeDriver: false,
     }).start(() => {
       onSelectOption(option);
@@ -119,103 +111,64 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
 
   return (
     <View style={styles.container}>
-      {/* Swipeable Card Stack Container */}
-      <View style={styles.cardArea}>
-        {/* Decorative Background Card Shadow */}
-        <View style={styles.backCardShadow} />
+      {/* Animated Clean Decision Card */}
+      <Animated.View
+        {...panResponder.panHandlers}
+        style={[
+          styles.card,
+          {
+            transform: [{ translateX: pan.x }, { translateY: pan.y }, { rotate }],
+          },
+        ]}
+      >
+        <View style={styles.cardHeader}>
+          <Text style={styles.categoryText}>{event.category.toUpperCase()}</Text>
+          <Ionicons name={event.icon as any} size={20} color="#FFFFFF" />
+        </View>
 
-        {/* Interactive Active Card */}
-        <Animated.View
-          {...panResponder.panHandlers}
-          style={[
-            styles.card,
-            {
-              transform: [{ translateX: pan.x }, { translateY: pan.y }, { rotate }],
-            },
-          ]}
-        >
-          {/* Header Banner */}
-          <View style={styles.cardHeader}>
-            <View style={styles.iconCircle}>
-              <Ionicons name={event.icon as any} size={22} color="#FFFFFF" />
-            </View>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>{event.category.toUpperCase()}</Text>
-            </View>
-          </View>
-
-          {/* Title & Narrative */}
+        <View style={styles.contentArea}>
           <Text style={styles.cardTitle}>{event.title}</Text>
-          <Text style={styles.cardHeadline}>"{event.headline}"</Text>
-          <Text style={styles.cardStory} numberOfLines={3}>
-            {event.storyDescription}
-          </Text>
+          <Text style={styles.cardStory}>{event.storyDescription}</Text>
+        </View>
 
-          {/* Dynamic Action Preview Hints */}
-          <View style={styles.previewBox}>
-            <View style={styles.previewRow}>
-              <Ionicons name="arrow-back" size={14} color="#A3A3A3" />
-              <Text style={styles.previewTextLeft}>
-                SWIPE LEFT: <Text style={styles.highlightText}>{optionLeft.title}</Text>
-              </Text>
-            </View>
-            <View style={[styles.previewRow, { marginTop: 6 }]}>
-              <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
-              <Text style={styles.previewTextRight}>
-                SWIPE RIGHT: <Text style={styles.highlightText}>{optionRight.title}</Text>
-              </Text>
-            </View>
-          </View>
+        {/* Swipe Hint Footer */}
+        <View style={styles.swipeHintRow}>
+          <Text style={styles.swipeHintText}>← Swipe left or right to choose →</Text>
+        </View>
 
-          {/* Stamp Overlay: Right (Accept / Option A) */}
-          <Animated.View style={[styles.stampBox, styles.rightStamp, { opacity: rightStampOpacity }]}>
-            <Text style={styles.rightStampText}>CHOOSE RIGHT</Text>
-            <Text style={styles.rightStampSubText}>{optionRight.title}</Text>
-          </Animated.View>
-
-          {/* Stamp Overlay: Left (Decline / Option B) */}
-          <Animated.View style={[styles.stampBox, styles.leftStamp, { opacity: leftStampOpacity }]}>
-            <Text style={styles.leftStampText}>CHOOSE LEFT</Text>
-            <Text style={styles.leftStampSubText}>{optionLeft.title}</Text>
-          </Animated.View>
+        {/* Stamp Overlays */}
+        <Animated.View style={[styles.stamp, styles.rightStamp, { opacity: rightStampOpacity }]}>
+          <Text style={styles.rightStampText}>CHOOSE RIGHT</Text>
         </Animated.View>
-      </View>
+        <Animated.View style={[styles.stamp, styles.leftStamp, { opacity: leftStampOpacity }]}>
+          <Text style={styles.leftStampText}>CHOOSE LEFT</Text>
+        </Animated.View>
+      </Animated.View>
 
-      {/* Tactile Big Action Buttons */}
-      <View style={styles.buttonRow}>
+      {/* Direct Tap Choice Buttons */}
+      <View style={styles.buttonsContainer}>
         <TouchableOpacity
           activeOpacity={0.8}
-          style={[styles.actionBtn, styles.leftBtn]}
+          style={styles.choiceBtnLeft}
           onPress={() => handleManualSelect(optionLeft, false)}
         >
-          <Ionicons name="close" size={24} color="#FFFFFF" />
-          <Text style={styles.btnLabel} numberOfLines={1}>{optionLeft.title}</Text>
+          <Text style={styles.btnSubLabel}>OPTION B</Text>
+          <Text style={styles.btnMainLabelLeft} numberOfLines={2}>
+            {optionLeft.title}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           activeOpacity={0.8}
-          style={[styles.actionBtn, styles.rightBtn]}
+          style={styles.choiceBtnRight}
           onPress={() => handleManualSelect(optionRight, true)}
         >
-          <Ionicons name="checkmark" size={24} color="#000000" />
-          <Text style={[styles.btnLabel, { color: '#000000' }]} numberOfLines={1}>
+          <Text style={styles.btnSubLabelRight}>OPTION A</Text>
+          <Text style={styles.btnMainLabelRight} numberOfLines={2}>
             {optionRight.title}
           </Text>
         </TouchableOpacity>
       </View>
-
-      {/* If 3rd option exists, show quick-select pill */}
-      {event.options.length > 2 && (
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={styles.thirdOptionPill}
-          onPress={() => onSelectOption(event.options[2])}
-        >
-          <Text style={styles.thirdOptionText}>
-            Alternative: <Text style={{ fontWeight: '800' }}>{event.options[2].title}</Text> →
-          </Text>
-        </TouchableOpacity>
-      )}
     </View>
   );
 };
@@ -223,207 +176,137 @@ export const SwipeDilemmaCard: React.FC<SwipeDilemmaCardProps> = ({ event, onSel
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginVertical: 8,
-  },
-  cardArea: {
-    width: SCREEN_WIDTH - 32,
-    height: 380,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backCardShadow: {
-    position: 'absolute',
-    width: SCREEN_WIDTH - 48,
-    height: 350,
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-    top: 18,
-    opacity: 0.6,
+    marginVertical: 4,
   },
   card: {
-    width: SCREEN_WIDTH - 32,
-    height: 360,
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: colors.surfaceBorder,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 10,
+    width: SCREEN_WIDTH - 40,
+    minHeight: 280,
+    backgroundColor: '#111111',
+    borderRadius: 20,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: '#262626',
     justifyContent: 'space-between',
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.surfaceElevated,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  categoryBadge: {
-    backgroundColor: colors.surfaceElevated,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    marginBottom: 16,
   },
   categoryText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
-    color: colors.textSecondary,
-    letterSpacing: 0.5,
+    color: '#888888',
+    letterSpacing: 1,
+  },
+  contentArea: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingVertical: 10,
   },
   cardTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '900',
-    color: colors.text,
-    letterSpacing: -0.3,
-    marginTop: 6,
-  },
-  cardHeadline: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.accent,
-    marginVertical: 4,
-    fontStyle: 'italic',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+    marginBottom: 10,
   },
   cardStory: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    lineHeight: 18,
+    fontSize: 14,
+    color: '#A3A3A3',
+    lineHeight: 20,
+    fontWeight: '500',
   },
-  previewBox: {
-    backgroundColor: colors.surfaceElevated,
-    padding: 12,
-    borderRadius: 14,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  previewRow: {
-    flexDirection: 'row',
+  swipeHintRow: {
     alignItems: 'center',
-    gap: 6,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderColor: '#1C1C1C',
   },
-  previewTextLeft: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: '700',
-    flex: 1,
+  swipeHintText: {
+    fontSize: 11,
+    color: '#666666',
+    fontWeight: '600',
   },
-  previewTextRight: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: '700',
-    flex: 1,
-  },
-  highlightText: {
-    color: colors.text,
-    fontWeight: '700',
-  },
-  stampBox: {
+  stamp: {
     position: 'absolute',
-    top: 40,
-    borderWidth: 2.5,
-    borderRadius: 14,
+    top: 30,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    alignItems: 'center',
+    borderRadius: 10,
+    borderWidth: 2,
   },
   rightStamp: {
     right: 20,
     borderColor: '#FFFFFF',
     backgroundColor: '#FFFFFF',
-    transform: [{ rotate: '12deg' }],
+    transform: [{ rotate: '8deg' }],
+  },
+  rightStampText: {
+    color: '#000000',
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
   leftStamp: {
     left: 20,
     borderColor: '#FFFFFF',
-    backgroundColor: '#1E1E1E',
-    transform: [{ rotate: '-12deg' }],
-  },
-  rightStampText: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#000000',
-    letterSpacing: 1,
+    backgroundColor: '#1A1A1A',
+    transform: [{ rotate: '-8deg' }],
   },
   leftStampText: {
-    fontSize: 18,
+    color: '#FFFFFF',
+    fontSize: 14,
     fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
-  rightStampSubText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#000000',
-    marginTop: 2,
-    maxWidth: 140,
-    textAlign: 'center',
-  },
-  leftStampSubText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#A3A3A3',
-    marginTop: 2,
-    maxWidth: 140,
-    textAlign: 'center',
-  },
-  buttonRow: {
+  buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-    marginTop: 14,
-    width: '100%',
-    paddingHorizontal: 20,
+    gap: 12,
+    marginTop: 16,
+    width: SCREEN_WIDTH - 40,
   },
-  actionBtn: {
+  choiceBtnLeft: {
     flex: 1,
-    paddingVertical: 13,
-    paddingHorizontal: 16,
+    backgroundColor: '#141414',
     borderRadius: 16,
-    alignItems: 'center',
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
     justifyContent: 'center',
   },
-  leftBtn: {
-    backgroundColor: colors.surfaceElevated,
-    borderWidth: 1.5,
-    borderColor: colors.surfaceBorderLight,
-  },
-  rightBtn: {
-    backgroundColor: '#FFFFFF',
-  },
-  btnLabel: {
-    color: '#FFFFFF',
-    fontSize: 12,
+  btnSubLabel: {
+    fontSize: 10,
     fontWeight: '800',
-    marginTop: 2,
+    color: '#666666',
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
-  thirdOptionPill: {
-    marginTop: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 12,
-    backgroundColor: colors.surfaceElevated,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+  btnMainLabelLeft: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    lineHeight: 18,
   },
-  thirdOptionText: {
-    fontSize: 11,
-    color: colors.textSecondary,
+  choiceBtnRight: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    justifyContent: 'center',
+  },
+  btnSubLabelRight: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#555555',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  btnMainLabelRight: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#000000',
+    lineHeight: 18,
   },
 });

@@ -1,13 +1,11 @@
 /**
- * TimeMachineDial — Interactive Analog Future Scrubber
- * Scrub through ages 21 to 35 to watch the split-screen alternate realities evolve.
+ * TimeMachineDial — Minimalist Future Scrubber
+ * Clean, distraction-free age slider with instant split-reality comparison.
  */
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { colors } from '../theme/colors';
 import { formatINR } from './CurrencyText';
 
 interface TimeMachineDialProps {
@@ -40,27 +38,18 @@ export const TimeMachineDial: React.FC<TimeMachineDialProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Time Machine Header */}
-      <View style={styles.dialHeader}>
-        <View style={styles.titleRow}>
-          <Ionicons name="speedometer-outline" size={18} color={colors.accent} />
-          <Text style={styles.titleText}>TIME MACHINE: SCRUB TO AGE {selectedAge}</Text>
-        </View>
-        <Text style={styles.timeDiffText}>+{selectedAge - currentAge} Years in the Future</Text>
-      </View>
-
-      {/* Analog Age Scrub Buttons */}
+      {/* Age Scrubber Row */}
       <View style={styles.scrubberRow}>
         {ageStops.map((age) => {
           const isSelected = selectedAge === age;
           return (
             <TouchableOpacity
               key={age}
-              activeOpacity={0.75}
-              style={[styles.dialPill, isSelected && styles.dialPillSelected]}
+              activeOpacity={0.8}
+              style={[styles.agePill, isSelected && styles.agePillActive]}
               onPress={() => handleSelectAge(age)}
             >
-              <Text style={[styles.dialPillAge, isSelected && styles.dialPillAgeSelected]}>
+              <Text style={[styles.ageText, isSelected && styles.ageTextActive]}>
                 Age {age}
               </Text>
             </TouchableOpacity>
@@ -68,36 +57,29 @@ export const TimeMachineDial: React.FC<TimeMachineDialProps> = ({
         })}
       </View>
 
-      {/* Split-Screen Alternate Reality Mirror */}
-      <View style={styles.splitMirrorContainer}>
-        {/* Reality A: Baseline */}
-        <View style={styles.realitySide}>
-          <Text style={styles.realitySideLabel}>REALITY A: BASELINE</Text>
-          <Text style={styles.realityWealth}>{formatINR(baselineWealth, true)}</Text>
-          <View style={styles.vibePill}>
-            <Text style={styles.vibeText}>Standard Living</Text>
-          </View>
+      {/* Clean Split Reality Comparison */}
+      <View style={styles.comparisonBox}>
+        <View style={styles.col}>
+          <Text style={styles.colLabel}>CURRENT PATH</Text>
+          <Text style={styles.colAmount}>{formatINR(baselineWealth, true)}</Text>
         </View>
 
-        {/* Divider VS badge */}
-        <View style={styles.vsBadge}>
-          <Text style={styles.vsText}>VS</Text>
-        </View>
+        <View style={styles.colDivider} />
 
-        {/* Reality B: What-If Compounding */}
-        <View style={[styles.realitySide, styles.realitySideBoosted]}>
-          <Text style={[styles.realitySideLabel, { color: colors.primaryLight }]}>
-            REALITY B: WHAT-IF
-          </Text>
-          <Text style={[styles.realityWealth, { color: colors.primaryLight }]}>
-            {formatINR(whatIfWealth, true)}
-          </Text>
-          <View style={[styles.vibePill, { backgroundColor: colors.primaryGlow }]}>
-            <Text style={[styles.vibeText, { color: colors.primaryLight }]}>
-              {wealthDifference >= 0 ? '+' : ''}{formatINR(wealthDifference, true)} Ahead!
-            </Text>
-          </View>
+        <View style={styles.col}>
+          <Text style={styles.colLabel}>WHAT-IF PATH</Text>
+          <Text style={styles.colAmountHighlight}>{formatINR(whatIfWealth, true)}</Text>
         </View>
+      </View>
+
+      {/* Difference Pill */}
+      <View style={styles.diffBar}>
+        <Text style={styles.diffText}>
+          Net Impact at Age {selectedAge}:{' '}
+          <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>
+            {wealthDifference >= 0 ? '+' : ''}{formatINR(wealthDifference, true)}
+          </Text>
+        </Text>
       </View>
     </View>
   );
@@ -105,116 +87,81 @@ export const TimeMachineDial: React.FC<TimeMachineDialProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
+    backgroundColor: '#111111',
+    borderRadius: 18,
     padding: 16,
-    borderWidth: 1.5,
-    borderColor: colors.surfaceBorder,
-    marginVertical: 12,
-  },
-  dialHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  titleText: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: colors.accent,
-    letterSpacing: 0.5,
-  },
-  timeDiffText: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    fontWeight: '700',
+    borderWidth: 1,
+    borderColor: '#222222',
+    marginVertical: 10,
   },
   scrubberRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     gap: 6,
     marginBottom: 16,
   },
-  dialPill: {
+  agePill: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: colors.surfaceElevated,
+    paddingVertical: 9,
+    borderRadius: 10,
+    backgroundColor: '#181818',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: '#262626',
   },
-  dialPillSelected: {
+  agePillActive: {
     backgroundColor: '#FFFFFF',
     borderColor: '#FFFFFF',
   },
-  dialPillAge: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: colors.textSecondary,
+  ageText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#888888',
   },
-  dialPillAgeSelected: {
+  ageTextActive: {
     color: '#000000',
+    fontWeight: '900',
   },
-  splitMirrorContainer: {
+  comparisonBox: {
     flexDirection: 'row',
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: 16,
-    padding: 12,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingVertical: 8,
   },
-  realitySide: {
+  col: {
     flex: 1,
     alignItems: 'center',
   },
-  realitySideBoosted: {
-    borderLeftWidth: 1,
-    borderColor: colors.surfaceBorder,
+  colDivider: {
+    width: 1,
+    height: 36,
+    backgroundColor: '#262626',
   },
-  realitySideLabel: {
+  colLabel: {
     fontSize: 10,
     fontWeight: '800',
-    color: colors.textMuted,
+    color: '#666666',
+    letterSpacing: 0.8,
     marginBottom: 4,
-    letterSpacing: 0.5,
   },
-  realityWealth: {
-    fontSize: 18,
+  colAmount: {
+    fontSize: 20,
     fontWeight: '900',
-    color: colors.text,
-    marginBottom: 6,
+    color: '#A3A3A3',
   },
-  vibePill: {
-    backgroundColor: colors.surface,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+  colAmountHighlight: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#FFFFFF',
   },
-  vibeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.textSecondary,
-  },
-  vsBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.surface,
-    justifyContent: 'center',
+  diffBar: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderColor: '#1C1C1C',
     alignItems: 'center',
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
   },
-  vsText: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: colors.accent,
+  diffText: {
+    fontSize: 12,
+    color: '#888888',
+    fontWeight: '600',
   },
 });

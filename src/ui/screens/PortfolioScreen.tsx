@@ -1,6 +1,6 @@
 /**
- * Portfolio Management Screen
- * Asset allocation, market cycle conditions, HHI diversification score, and SIP management.
+ * Portfolio Management Screen — Simplistic Minimalist UI
+ * Clean holdings breakdown and asset allocation.
  */
 
 import React, { useState } from 'react';
@@ -15,12 +15,10 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
 import { useSimulationStore } from '../../store/useSimulationStore';
 import { InvestmentEngine } from '../../core/investment/InvestmentEngine';
 import { CurrencyText, formatINR } from '../components/CurrencyText';
-import { AssetItem, AssetType } from '../../core/types/finance';
+import { AssetItem } from '../../core/types/finance';
 
 export const PortfolioScreen: React.FC = () => {
   const balanceSheet = useSimulationStore((state) => state.balanceSheet);
@@ -46,72 +44,34 @@ export const PortfolioScreen: React.FC = () => {
     setEditingAssetId(null);
   };
 
-  let marketTagColor = colors.primary;
-  let marketDescription = 'Market is trending upward with healthy growth.';
-  if (currentMarket === 'bear') {
-    marketTagColor = colors.dangerLight;
-    marketDescription = 'Bear market phase: Stock prices are declining, offering discounted SIP accumulation.';
-  } else if (currentMarket === 'crash') {
-    marketTagColor = colors.danger;
-    marketDescription = 'Market Crash: Deep temporary drawdown. Tests emotional investing discipline!';
-  } else if (currentMarket === 'recovery') {
-    marketTagColor = colors.primaryLight;
-    marketDescription = 'Recovery rally: Asset valuations bouncing back following market lows.';
-  } else if (currentMarket === 'stagnant') {
-    marketTagColor = colors.textSecondary;
-    marketDescription = 'Sideways market: Asset valuations moving in a narrow range.';
-  }
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header Title */}
+        {/* Minimal Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Virtual Portfolio</Text>
-          <Text style={styles.subtitle}>
-            Practice multi-asset diversification without capital risk.
+          <Text style={styles.title}>Portfolio</Text>
+          <View style={styles.marketBadge}>
+            <Text style={styles.marketBadgeText}>Market: {currentMarket.toUpperCase()}</Text>
+          </View>
+        </View>
+
+        {/* Hero Portfolio Totals */}
+        <View style={styles.heroBox}>
+          <Text style={styles.heroLabel}>TOTAL INVESTMENTS</Text>
+          <CurrencyText amount={balanceSheet.investmentsTotal} style={styles.heroAmount} />
+          <Text style={styles.heroSIPText}>
+            Active Monthly SIP: {formatINR(totalMonthlySIP)}/mo
           </Text>
         </View>
 
-        {/* Portfolio Overview Hero */}
-        <View style={styles.heroCard}>
-          <View style={styles.heroRow}>
-            <View>
-              <Text style={styles.heroLabel}>Total Portfolio Value</Text>
-              <CurrencyText amount={balanceSheet.investmentsTotal} style={styles.heroValue} />
-            </View>
-            <View style={styles.sipTotalBox}>
-              <Text style={styles.sipTotalLabel}>Active Monthly SIP</Text>
-              <Text style={styles.sipTotalValue}>{formatINR(totalMonthlySIP)}/mo</Text>
-            </View>
-          </View>
-
-          {/* Market Cycle Indicator */}
-          <View style={styles.marketBanner}>
-            <View style={styles.marketHeader}>
-              <View style={[styles.marketDot, { backgroundColor: marketTagColor }]} />
-              <Text style={[styles.marketTitle, { color: marketTagColor }]}>
-                Market Environment: {currentMarket.toUpperCase()}
-              </Text>
-            </View>
-            <Text style={styles.marketDesc}>{marketDescription}</Text>
-          </View>
-        </View>
-
-        {/* Diversification Assessment Card */}
+        {/* Diversification Bar — Minimal Grayscale */}
         <View style={styles.diversificationCard}>
-          <View style={styles.diversificationHeader}>
-            <View style={styles.divTitleRow}>
-              <Ionicons name="pie-chart" size={18} color={colors.accent} />
-              <Text style={styles.divTitle}>Portfolio Diversification</Text>
-            </View>
-            <View style={styles.divScoreBadge}>
-              <Text style={styles.divScoreText}>{diversification.score}/15 Pts</Text>
-            </View>
+          <View style={styles.divRow}>
+            <Text style={styles.divTitle}>Diversification Score</Text>
+            <Text style={styles.divScore}>{diversification.score} / 15 pts</Text>
           </View>
-          <Text style={styles.divFeedback}>{diversification.feedback}</Text>
 
-          {/* Asset Distribution Bar */}
+          {/* Clean Segment Bar */}
           <View style={styles.distBar}>
             {balanceSheet.assets.map((asset, idx) => {
               const weight = balanceSheet.investmentsTotal > 0
@@ -128,65 +88,68 @@ export const PortfolioScreen: React.FC = () => {
               );
             })}
           </View>
+          <Text style={styles.divFeedback}>{diversification.feedback}</Text>
         </View>
 
-        {/* Asset List */}
-        <Text style={styles.sectionTitle}>Your Holdings ({balanceSheet.assets.length})</Text>
+        {/* Holdings List (Clean Minimal Rows) */}
+        <View style={styles.holdingsSection}>
+          <Text style={styles.sectionHeader}>HOLDINGS ({balanceSheet.assets.length})</Text>
+          <View style={styles.holdingsCard}>
+            {balanceSheet.assets.map((asset, idx) => {
+              const isEditing = editingAssetId === asset.id;
+              const gainLoss = asset.currentValue - asset.investedAmount;
+              const isPositive = gainLoss >= 0;
+              const isLast = idx === balanceSheet.assets.length - 1;
 
-        {balanceSheet.assets.map((asset) => {
-          const isEditing = editingAssetId === asset.id;
-          const gainLoss = asset.currentValue - asset.investedAmount;
-          const isPositive = gainLoss >= 0;
+              return (
+                <View key={asset.id} style={[styles.assetRow, isLast && styles.assetRowLast]}>
+                  <View style={styles.assetTop}>
+                    <View style={styles.assetNameCol}>
+                      <Text style={styles.assetName}>{asset.name}</Text>
+                      <Text style={styles.assetMeta}>
+                        {asset.category.replace('_', ' ').toUpperCase()} · Expected {(asset.expectedAnnualReturnRate * 100).toFixed(0)}% p.a.
+                      </Text>
+                    </View>
 
-          return (
-            <View key={asset.id} style={styles.assetCard}>
-              <View style={styles.assetTopRow}>
-                <View style={styles.assetNameCol}>
-                  <Text style={styles.assetName}>{asset.name}</Text>
-                  <Text style={styles.assetCategory}>
-                    {asset.category.replace('_', ' ').toUpperCase()} • Expected ~{(asset.expectedAnnualReturnRate * 100).toFixed(1)}% p.a.
-                  </Text>
-                </View>
-                <View style={styles.assetValCol}>
-                  <CurrencyText amount={asset.currentValue} style={styles.assetValText} />
-                  <Text style={[styles.gainLossText, { color: isPositive ? colors.primaryLight : colors.dangerLight }]}>
-                    {isPositive ? '+' : ''}{formatINR(gainLoss, true)}
-                  </Text>
-                </View>
-              </View>
-
-              {/* SIP Setting */}
-              <View style={styles.sipRow}>
-                <View style={styles.sipInfo}>
-                  <Ionicons name="repeat" size={14} color={colors.textSecondary} />
-                  <Text style={styles.sipText}>
-                    Monthly SIP: <Text style={{ color: colors.text, fontWeight: '700' }}>{formatINR(asset.monthlySIPAmount || 0)}</Text>
-                  </Text>
-                </View>
-
-                {isEditing ? (
-                  <View style={styles.editControls}>
-                    <TextInput
-                      style={styles.sipInput}
-                      keyboardType="numeric"
-                      value={tempSIP}
-                      onChangeText={setTempSIP}
-                      placeholder="₹ amount"
-                      placeholderTextColor={colors.textMuted}
-                    />
-                    <TouchableOpacity style={styles.saveSIPBtn} onPress={() => handleSaveSIP(asset.id)}>
-                      <Text style={styles.saveSIPText}>Save</Text>
-                    </TouchableOpacity>
+                    <View style={styles.assetValCol}>
+                      <CurrencyText amount={asset.currentValue} style={styles.assetValText} />
+                      <Text style={styles.gainLossText}>
+                        {isPositive ? '+' : ''}{formatINR(gainLoss, true)}
+                      </Text>
+                    </View>
                   </View>
-                ) : (
-                  <TouchableOpacity style={styles.editSIPBtn} onPress={() => handleStartEdit(asset)}>
-                    <Text style={styles.editSIPText}>Edit SIP</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          );
-        })}
+
+                  {/* Clean SIP Line */}
+                  <View style={styles.sipRow}>
+                    <Text style={styles.sipLabel}>
+                      Monthly SIP: <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>{formatINR(asset.monthlySIPAmount || 0)}</Text>
+                    </Text>
+
+                    {isEditing ? (
+                      <View style={styles.editControls}>
+                        <TextInput
+                          style={styles.sipInput}
+                          keyboardType="numeric"
+                          value={tempSIP}
+                          onChangeText={setTempSIP}
+                          placeholder="₹"
+                          placeholderTextColor="#666666"
+                        />
+                        <TouchableOpacity style={styles.saveSIPBtn} onPress={() => handleSaveSIP(asset.id)}>
+                          <Text style={styles.saveSIPText}>Save</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity onPress={() => handleStartEdit(asset)}>
+                        <Text style={styles.editLink}>Edit SIP</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -195,157 +158,128 @@ export const PortfolioScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#000000',
     paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
-    padding: 16,
-    paddingBottom: 60,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 40,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '900',
-    color: colors.text,
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
   },
-  subtitle: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  heroCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 18,
+  marketBadge: {
+    backgroundColor: '#141414',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: '#262626',
+  },
+  marketBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#A3A3A3',
+  },
+  heroBox: {
+    alignItems: 'center',
+    paddingVertical: 14,
     marginBottom: 16,
   },
-  heroRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 14,
-  },
   heroLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.textSecondary,
-  },
-  heroValue: {
-    fontSize: 26,
-    fontWeight: '900',
-    marginTop: 2,
-  },
-  sipTotalBox: {
-    alignItems: 'flex-end',
-  },
-  sipTotalLabel: {
     fontSize: 11,
-    color: colors.textMuted,
-  },
-  sipTotalValue: {
-    fontSize: 15,
     fontWeight: '800',
-    color: colors.primary,
-    marginTop: 2,
-  },
-  marketBanner: {
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: 12,
-    padding: 12,
-  },
-  marketHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+    color: '#888888',
+    letterSpacing: 1,
     marginBottom: 4,
   },
-  marketDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  heroAmount: {
+    fontSize: 36,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.8,
   },
-  marketTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  marketDesc: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    lineHeight: 16,
+  heroSIPText: {
+    fontSize: 13,
+    color: '#A3A3A3',
+    fontWeight: '600',
+    marginTop: 4,
   },
   diversificationCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: '#111111',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-    marginBottom: 16,
+    borderColor: '#222222',
+    marginBottom: 20,
   },
-  diversificationHeader: {
+  divRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
-  },
-  divTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+    marginBottom: 10,
   },
   divTitle: {
-    fontSize: 14,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#E5E5E5',
+  },
+  divScore: {
+    fontSize: 13,
     fontWeight: '800',
-    color: colors.text,
-  },
-  divScoreBadge: {
-    backgroundColor: colors.accentGlow,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  divScoreText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: colors.accent,
-  },
-  divFeedback: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    lineHeight: 17,
-    marginBottom: 12,
+    color: '#FFFFFF',
   },
   distBar: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.surfaceElevated,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#1E1E1E',
     flexDirection: 'row',
     overflow: 'hidden',
+    marginBottom: 10,
   },
   distSegment: {
     height: '100%',
   },
-  sectionTitle: {
-    fontSize: 14,
+  divFeedback: {
+    fontSize: 12,
+    color: '#888888',
+    lineHeight: 16,
+  },
+  holdingsSection: {
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    fontSize: 11,
     fontWeight: '800',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 10,
+    color: '#666666',
+    letterSpacing: 1,
+    marginBottom: 8,
   },
-  assetCard: {
-    backgroundColor: colors.surface,
+  holdingsCard: {
+    backgroundColor: '#111111',
     borderRadius: 16,
-    padding: 14,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-    marginBottom: 10,
+    borderColor: '#222222',
   },
-  assetTopRow: {
+  assetRow: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: '#1C1C1C',
+  },
+  assetRowLast: {
+    borderBottomWidth: 0,
+  },
+  assetTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -353,16 +287,18 @@ const styles = StyleSheet.create({
   },
   assetNameCol: {
     flex: 1,
+    marginRight: 10,
   },
   assetName: {
     fontSize: 15,
     fontWeight: '800',
-    color: colors.text,
+    color: '#FFFFFF',
   },
-  assetCategory: {
+  assetMeta: {
     fontSize: 11,
-    color: colors.textMuted,
+    color: '#666666',
     marginTop: 2,
+    fontWeight: '600',
   },
   assetValCol: {
     alignItems: 'flex-end',
@@ -370,64 +306,57 @@ const styles = StyleSheet.create({
   assetValText: {
     fontSize: 16,
     fontWeight: '800',
+    color: '#FFFFFF',
   },
   gainLossText: {
     fontSize: 11,
     fontWeight: '700',
-    marginTop: 2,
+    color: '#A3A3A3',
+    marginTop: 1,
   },
   sipRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 8,
     borderTopWidth: 1,
-    borderColor: colors.surfaceBorder,
-    paddingTop: 10,
+    borderColor: '#181818',
   },
-  sipInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  sipText: {
+  sipLabel: {
     fontSize: 12,
-    color: colors.textSecondary,
+    color: '#888888',
+  },
+  editLink: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   editControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   sipInput: {
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: 8,
+    backgroundColor: '#1A1A1A',
+    borderRadius: 6,
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    color: colors.text,
-    fontSize: 13,
+    paddingVertical: 3,
+    color: '#FFFFFF',
+    fontSize: 12,
     fontWeight: '700',
-    width: 80,
+    width: 65,
+    borderWidth: 1,
+    borderColor: '#333333',
   },
   saveSIPBtn: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   saveSIPText: {
     color: '#000000',
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  editSIPBtn: {
-    backgroundColor: colors.surfaceElevated,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-  },
-  editSIPText: {
-    color: colors.textSecondary,
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '800',
   },
 });

@@ -1,12 +1,11 @@
 /**
- * What-If Sandbox Comparison Chart
- * Visualizes dual projection curves (Baseline vs What-If) using react-native-svg.
+ * What-If Sandbox Comparison Chart — Minimalist SVG Visualizer
+ * Dual curves (Current vs What-If) with clean typography.
  */
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import Svg, { Path, Defs, LinearGradient, Stop, Circle, Line, Text as SvgText } from 'react-native-svg';
-import { colors } from '../theme/colors';
+import React from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import Svg, { Path, Circle, Line } from 'react-native-svg';
 import { ProjectionDataPoint } from '../../core/types/whatif';
 import { formatINR } from './CurrencyText';
 
@@ -15,9 +14,8 @@ interface WhatIfChartProps {
   height?: number;
 }
 
-export const WhatIfChart: React.FC<WhatIfChartProps> = ({ dataPoints, height = 220 }) => {
-  const [selectedIndex, setSelectedIndex] = useState<number>(dataPoints.length - 1);
-  const screenWidth = Dimensions.get('window').width - 40; // Card padding
+export const WhatIfChart: React.FC<WhatIfChartProps> = ({ dataPoints, height = 180 }) => {
+  const screenWidth = Dimensions.get('window').width - 40; // Card width
 
   if (!dataPoints || dataPoints.length === 0) {
     return (
@@ -27,7 +25,6 @@ export const WhatIfChart: React.FC<WhatIfChartProps> = ({ dataPoints, height = 2
     );
   }
 
-  // Calculate scales
   const maxBaseline = Math.max(...dataPoints.map((p) => p.baselineNetWorth));
   const maxWhatIf = Math.max(...dataPoints.map((p) => p.whatIfNetWorth));
   const minVal = Math.min(0, ...dataPoints.map((p) => Math.min(p.baselineNetWorth, p.whatIfNetWorth)));
@@ -36,8 +33,8 @@ export const WhatIfChart: React.FC<WhatIfChartProps> = ({ dataPoints, height = 2
 
   const paddingLeft = 10;
   const paddingRight = 10;
-  const paddingTop = 20;
-  const paddingBottom = 30;
+  const paddingTop = 16;
+  const paddingBottom = 20;
 
   const chartWidth = screenWidth - paddingLeft - paddingRight;
   const chartHeight = height - paddingTop - paddingBottom;
@@ -45,7 +42,6 @@ export const WhatIfChart: React.FC<WhatIfChartProps> = ({ dataPoints, height = 2
   const getX = (idx: number) => paddingLeft + (idx / (dataPoints.length - 1)) * chartWidth;
   const getY = (val: number) => paddingTop + chartHeight - ((val - minVal) / range) * chartHeight;
 
-  // Build SVG Path strings
   let baselinePath = `M ${getX(0)} ${getY(dataPoints[0].baselineNetWorth)}`;
   let whatIfPath = `M ${getX(0)} ${getY(dataPoints[0].whatIfNetWorth)}`;
 
@@ -54,198 +50,95 @@ export const WhatIfChart: React.FC<WhatIfChartProps> = ({ dataPoints, height = 2
     whatIfPath += ` L ${getX(i)} ${getY(dataPoints[i].whatIfNetWorth)}`;
   }
 
-  const selectedPoint = dataPoints[selectedIndex] || dataPoints[dataPoints.length - 1];
-  const netWorthDelta = selectedPoint.whatIfNetWorth - selectedPoint.baselineNetWorth;
+  const lastPoint = dataPoints[dataPoints.length - 1];
 
   return (
     <View style={styles.container}>
-      {/* Selected Scrubber Info Bar */}
-      <View style={styles.infoBar}>
-        <View>
-          <Text style={styles.pointAgeText}>
-            Month {selectedPoint.monthIndex} • Age {selectedPoint.age}
-          </Text>
-          <View style={styles.legendRow}>
-            <View style={[styles.legendDot, { backgroundColor: colors.chartBaseline }]} />
-            <Text style={styles.legendText}>
-              Current: {formatINR(selectedPoint.baselineNetWorth, true)}
-            </Text>
-            <View style={[styles.legendDot, { backgroundColor: colors.chartWhatIf, marginLeft: 12 }]} />
-            <Text style={styles.legendText}>
-              What-If: {formatINR(selectedPoint.whatIfNetWorth, true)}
-            </Text>
-          </View>
+      {/* Legend & End values */}
+      <View style={styles.legendRow}>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: '#555555' }]} />
+          <Text style={styles.legendText}>Current: {formatINR(lastPoint.baselineNetWorth, true)}</Text>
         </View>
 
-        <View style={styles.deltaBadge}>
-          <Text
-            style={[
-              styles.deltaText,
-              { color: netWorthDelta >= 0 ? colors.primaryLight : colors.dangerLight },
-            ]}
-          >
-            {netWorthDelta >= 0 ? '+' : ''}
-            {formatINR(netWorthDelta, true)}
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: '#FFFFFF' }]} />
+          <Text style={[styles.legendText, { color: '#FFFFFF' }]}>
+            What-If: {formatINR(lastPoint.whatIfNetWorth, true)}
           </Text>
         </View>
       </View>
 
       {/* SVG Plot */}
       <Svg width={screenWidth} height={height}>
-        <Defs>
-          <LinearGradient id="baselineGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor={colors.chartBaseline} stopOpacity={0.2} />
-            <Stop offset="100%" stopColor={colors.chartBaseline} stopOpacity={0.0} />
-          </LinearGradient>
-          <LinearGradient id="whatIfGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor={colors.chartWhatIf} stopOpacity={0.2} />
-            <Stop offset="100%" stopColor={colors.chartWhatIf} stopOpacity={0.0} />
-          </LinearGradient>
-        </Defs>
-
-        {/* Zero baseline horizontal line if minVal < 0 */}
+        {/* Zero guide line if negative */}
         {minVal < 0 && (
           <Line
             x1={paddingLeft}
             y1={getY(0)}
             x2={screenWidth - paddingRight}
             y2={getY(0)}
-            stroke={colors.surfaceBorder}
+            stroke="#262626"
             strokeDasharray="4 4"
           />
         )}
 
-        {/* Baseline Path */}
-        <Path d={baselinePath} stroke={colors.chartBaseline} strokeWidth="2.5" fill="none" />
+        {/* Baseline Muted Curve */}
+        <Path d={baselinePath} stroke="#555555" strokeWidth="2" fill="none" />
 
-        {/* What-If Path */}
-        <Path d={whatIfPath} stroke={colors.chartWhatIf} strokeWidth="3" fill="none" />
+        {/* What-If Highlight Curve */}
+        <Path d={whatIfPath} stroke="#FFFFFF" strokeWidth="2.5" fill="none" />
 
-        {/* Scrubber vertical guide line */}
-        <Line
-          x1={getX(selectedIndex)}
-          y1={paddingTop}
-          x2={getX(selectedIndex)}
-          y2={height - paddingBottom}
-          stroke="#475569"
-          strokeWidth="1.5"
-          strokeDasharray="3 3"
-        />
-
-        {/* Scrubber active dots */}
+        {/* End dots */}
         <Circle
-          cx={getX(selectedIndex)}
-          cy={getY(selectedPoint.baselineNetWorth)}
-          r="4.5"
-          fill={colors.chartBaseline}
-          stroke="#000000"
-          strokeWidth="2"
+          cx={getX(dataPoints.length - 1)}
+          cy={getY(lastPoint.baselineNetWorth)}
+          r="4"
+          fill="#555555"
         />
         <Circle
-          cx={getX(selectedIndex)}
-          cy={getY(selectedPoint.whatIfNetWorth)}
-          r="5.5"
-          fill={colors.chartWhatIf}
-          stroke="#000000"
-          strokeWidth="2"
+          cx={getX(dataPoints.length - 1)}
+          cy={getY(lastPoint.whatIfNetWorth)}
+          r="4"
+          fill="#FFFFFF"
         />
       </Svg>
-
-      {/* Touch points scrubber buttons */}
-      <View style={styles.scrubberRow}>
-        {[12, 24, 36, 48, 60].map((m) => {
-          if (m > dataPoints.length) return null;
-          const targetIndex = m - 1;
-          const isActive = selectedIndex === targetIndex;
-          return (
-            <TouchableOpacity
-              key={m}
-              style={[styles.scrubPill, isActive && styles.scrubPillActive]}
-              onPress={() => setSelectedIndex(targetIndex)}
-            >
-              <Text style={[styles.scrubText, isActive && styles.scrubTextActive]}>
-                {m / 12}Y
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.surface,
+    backgroundColor: '#111111',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: '#222222',
     marginVertical: 10,
   },
   emptyText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-  },
-  infoBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  pointAgeText: {
+    color: '#888888',
     fontSize: 13,
-    fontWeight: '700',
-    color: colors.text,
   },
   legendRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 3,
+    marginBottom: 10,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   legendText: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  deltaBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    backgroundColor: colors.surfaceElevated,
-  },
-  deltaText: {
     fontSize: 12,
-    fontWeight: '800',
-  },
-  scrubberRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 6,
-  },
-  scrubPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 8,
-    backgroundColor: colors.surfaceElevated,
-  },
-  scrubPillActive: {
-    backgroundColor: '#FFFFFF',
-  },
-  scrubText: {
-    fontSize: 11,
     fontWeight: '700',
-    color: colors.textSecondary,
-  },
-  scrubTextActive: {
-    color: '#000000',
-    fontWeight: '800',
+    color: '#888888',
   },
 });

@@ -1,6 +1,6 @@
 /**
- * Onboarding Screen — "Build Your Financial Life"
- * Character creation, starting stage selection (Student, Intern, First Job), and goals setup.
+ * Onboarding Screen — Simplistic Minimalist UI
+ * Clean character setup and starting stage selection.
  */
 
 import React, { useState } from 'react';
@@ -15,8 +15,6 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
 import { LifeStage, STAGE_PRESETS } from '../../core/types/profile';
 import { useSimulationStore } from '../../store/useSimulationStore';
 import { InteractiveAvatar } from '../components/InteractiveAvatar';
@@ -38,39 +36,31 @@ export const OnboardingScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {/* Minimal Hero Header */}
         <View style={styles.header}>
-          <InteractiveAvatar mood="confident" size={88} />
-          <Text style={styles.title}>Finance Life Simulator</Text>
+          <InteractiveAvatar mood="confident" size={72} />
+          <Text style={styles.title}>Finance Simulator</Text>
           <Text style={styles.tagline}>
-            Learn to make real financial decisions without risking real money.
-          </Text>
-        </View>
-
-        {/* Disclaimer Pill */}
-        <View style={styles.disclaimerPill}>
-          <Ionicons name="shield-checkmark" size={16} color={colors.primaryLight} />
-          <Text style={styles.disclaimerText}>
-            100% Virtual Financial Life Simulation for Education
+            Master real-world money decisions with zero capital risk.
           </Text>
         </View>
 
         {/* Character Name Input */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Your Character’s Name</Text>
+          <Text style={styles.label}>CHARACTER NAME</Text>
           <TextInput
             style={styles.textInput}
             value={name}
             onChangeText={setName}
             placeholder="e.g. Arjun"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor="#666666"
           />
         </View>
 
-        {/* Choose Starting Stage */}
+        {/* Starting Stage Pills */}
         <View style={styles.stageSection}>
-          <Text style={styles.label}>Choose Your Starting Life Stage</Text>
-          <View style={styles.stageGrid}>
+          <Text style={styles.label}>STARTING LIFE STAGE</Text>
+          <View style={styles.stagePillRow}>
             {stages.map((st) => {
               const info = STAGE_PRESETS[st];
               const isSelected = selectedStage === st;
@@ -78,20 +68,11 @@ export const OnboardingScreen: React.FC = () => {
                 <TouchableOpacity
                   key={st}
                   activeOpacity={0.8}
-                  style={[styles.stageCard, isSelected && styles.stageCardSelected]}
+                  style={[styles.stagePill, isSelected && styles.stagePillActive]}
                   onPress={() => setSelectedStage(st)}
                 >
-                  <View style={styles.stageCardHeader}>
-                    <Text style={[styles.stageCardTitle, isSelected && styles.stageCardTitleSelected]}>
-                      {info.title}
-                    </Text>
-                    <Text style={styles.stageCardAge}>Age {info.age}</Text>
-                  </View>
-                  <Text style={styles.stageCardIncome}>
-                    Income: {formatINR(info.monthlyIncome)}/mo
-                  </Text>
-                  <Text style={styles.stageCardDesc} numberOfLines={2}>
-                    {info.description}
+                  <Text style={[styles.stagePillText, isSelected && styles.stagePillTextActive]}>
+                    {info.title}
                   </Text>
                 </TouchableOpacity>
               );
@@ -99,42 +80,46 @@ export const OnboardingScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Selected Stage Live Preview */}
-        <View style={styles.previewBox}>
-          <Text style={styles.previewTitle}>Starting Financial State</Text>
-          <View style={styles.previewGrid}>
-            <View style={styles.previewItem}>
-              <Text style={styles.previewLabel}>Monthly Salary</Text>
-              <Text style={[styles.previewVal, { color: colors.primary }]}>
-                {formatINR(preset.monthlyIncome)}
-              </Text>
+        {/* Selected Stage Live Preview (Clean Minimal Card) */}
+        <View style={styles.previewCard}>
+          <View style={styles.previewHeader}>
+            <Text style={styles.previewStageTitle}>{preset.title}</Text>
+            <Text style={styles.previewAgeText}>Age {preset.age}</Text>
+          </View>
+          <Text style={styles.previewDesc}>{preset.description}</Text>
+
+          <View style={styles.statsRow}>
+            <View style={styles.statCol}>
+              <Text style={styles.statLabel}>Monthly Income</Text>
+              <Text style={styles.statVal}>{formatINR(preset.monthlyIncome)}</Text>
             </View>
-            <View style={styles.previewItem}>
-              <Text style={styles.previewLabel}>Starting Savings</Text>
-              <Text style={[styles.previewVal, { color: colors.text }]}>
-                {formatINR(preset.startingSavings)}
-              </Text>
+            <View style={styles.statCol}>
+              <Text style={styles.statLabel}>Starting Savings</Text>
+              <Text style={styles.statVal}>{formatINR(preset.startingSavings)}</Text>
             </View>
-            <View style={styles.previewItem}>
-              <Text style={styles.previewLabel}>Living Expenses</Text>
-              <Text style={[styles.previewVal, { color: colors.textSecondary }]}>
-                {formatINR(preset.fixedMonthlyExpenses)}/mo
-              </Text>
+          </View>
+
+          <View style={[styles.statsRow, { marginTop: 10 }]}>
+            <View style={styles.statCol}>
+              <Text style={styles.statLabel}>Living Expenses</Text>
+              <Text style={styles.statVal}>{formatINR(preset.fixedMonthlyExpenses)}/mo</Text>
             </View>
-            <View style={styles.previewItem}>
-              <Text style={styles.previewLabel}>Existing Debt</Text>
-              <Text style={[styles.previewVal, { color: colors.danger }]}>
-                {formatINR(preset.startingDebt)}
-              </Text>
+            <View style={styles.statCol}>
+              <Text style={styles.statLabel}>Starting Debt</Text>
+              <Text style={styles.statVal}>{formatINR(preset.startingDebt)}</Text>
             </View>
           </View>
         </View>
 
         {/* Start Button */}
         <TouchableOpacity style={styles.startButton} activeOpacity={0.85} onPress={handleStart}>
-          <Text style={styles.startButtonText}>Begin Financial Life</Text>
-          <Ionicons name="sparkles" size={18} color="#000000" />
+          <Text style={styles.startButtonText}>Begin Simulation →</Text>
         </TouchableOpacity>
+
+        {/* Educational Note */}
+        <Text style={styles.footerNote}>
+          100% virtual education simulator · No real money involved
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -143,164 +128,147 @@ export const OnboardingScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#000000',
     paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 0,
   },
   container: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 12,
     paddingBottom: 40,
   },
   header: {
     alignItems: 'center',
-    marginVertical: 14,
+    marginVertical: 16,
   },
   title: {
     fontSize: 26,
     fontWeight: '900',
-    color: colors.text,
+    color: '#FFFFFF',
     letterSpacing: -0.5,
     marginTop: 12,
-    marginBottom: 4,
   },
   tagline: {
     fontSize: 13,
-    color: colors.textSecondary,
+    color: '#888888',
     textAlign: 'center',
+    marginTop: 4,
+    maxWidth: 260,
     lineHeight: 18,
-    maxWidth: 280,
-  },
-  disclaimerPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: colors.surfaceElevated,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  disclaimerText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.textSecondary,
   },
   inputGroup: {
-    marginBottom: 18,
+    marginBottom: 20,
   },
   label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#666666',
+    letterSpacing: 1,
     marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
   textInput: {
-    backgroundColor: colors.surface,
+    backgroundColor: '#111111',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-    color: colors.text,
-    paddingHorizontal: 14,
+    borderColor: '#222222',
+    color: '#FFFFFF',
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
   },
   stageSection: {
     marginBottom: 20,
   },
-  stageGrid: {
-    gap: 10,
+  stagePillRow: {
+    flexDirection: 'row',
+    gap: 8,
   },
-  stageCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1.5,
-    borderColor: colors.surfaceBorder,
+  stagePill: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#111111',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#222222',
   },
-  stageCardSelected: {
+  stagePillActive: {
+    backgroundColor: '#FFFFFF',
     borderColor: '#FFFFFF',
-    backgroundColor: colors.surfaceElevated,
   },
-  stageCardHeader: {
+  stagePillText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#888888',
+  },
+  stagePillTextActive: {
+    color: '#000000',
+    fontWeight: '900',
+  },
+  previewCard: {
+    backgroundColor: '#111111',
+    borderRadius: 16,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#222222',
+    marginBottom: 24,
+  },
+  previewHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  stageCardTitle: {
+  previewStageTitle: {
     fontSize: 16,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  stageCardTitleSelected: {
+    fontWeight: '900',
     color: '#FFFFFF',
   },
-  stageCardAge: {
+  previewAgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: colors.accent,
+    color: '#888888',
   },
-  stageCardIncome: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.primary,
-    marginBottom: 4,
-  },
-  stageCardDesc: {
+  previewDesc: {
     fontSize: 12,
-    color: colors.textSecondary,
-    lineHeight: 16,
+    color: '#A3A3A3',
+    lineHeight: 17,
+    marginBottom: 16,
   },
-  previewBox: {
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-  },
-  previewTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.textMuted,
-    marginBottom: 10,
-    textTransform: 'uppercase',
-  },
-  previewGrid: {
+  statsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 10,
   },
-  previewItem: {
-    width: '45%',
+  statCol: {
+    flex: 1,
   },
-  previewLabel: {
+  statLabel: {
     fontSize: 11,
-    color: colors.textSecondary,
+    color: '#666666',
+    fontWeight: '600',
+    marginBottom: 2,
   },
-  previewVal: {
+  statVal: {
     fontSize: 15,
     fontWeight: '800',
-    marginTop: 2,
+    color: '#FFFFFF',
   },
   startButton: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    borderRadius: 14,
+    paddingVertical: 15,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+    marginBottom: 16,
   },
   startButtonText: {
     color: '#000000',
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '900',
+  },
+  footerNote: {
+    fontSize: 11,
+    color: '#555555',
+    textAlign: 'center',
   },
 });
