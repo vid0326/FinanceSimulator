@@ -136,11 +136,13 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#666666',
+    color: '#71717A',
     marginTop: 2,
+    letterSpacing: 0.2,
   },
   tabLabelActive: {
     color: '#FFFFFF',
     fontWeight: '800',
+    letterSpacing: 0.2,
   },
 });

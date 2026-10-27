@@ -26,6 +26,7 @@ import { ConsequenceModal } from '../components/ConsequenceModal';
 import { AuthModal } from '../components/AuthModal';
 import { PromotionModal } from '../components/PromotionModal';
 import { LeaderboardModal } from '../components/LeaderboardModal';
+import { NetWorthChart } from '../components/NetWorthChart';
 import { useAuthStore } from '../../store/useAuthStore';
 
 export const DashboardScreen: React.FC = () => {
@@ -41,6 +42,7 @@ export const DashboardScreen: React.FC = () => {
   const health = useSimulationStore((state) => state.healthScore);
   const currentEvent = useSimulationStore((state) => state.currentEvent);
   const lastConsequence = useSimulationStore((state) => state.lastConsequence);
+  const historicalSnapshots = useSimulationStore((state) => state.historicalSnapshots);
 
   const advanceMonth = useSimulationStore((state) => state.advanceMonth);
   const dismissConsequence = useSimulationStore((state) => state.dismissConsequence);
@@ -153,9 +155,16 @@ export const DashboardScreen: React.FC = () => {
         <View style={styles.heroSection}>
           <Text style={styles.heroLabel}>NET WORTH</Text>
           <CurrencyText amount={balanceSheet.netWorth} style={styles.heroAmount} />
-          <Text style={styles.cashFlowText}>
-            {monthlyNetCashFlow >= 0 ? '+' : ''}{formatINR(monthlyNetCashFlow)}/mo cash flow
-          </Text>
+          <View style={[styles.cashFlowPill, monthlyNetCashFlow >= 0 ? styles.cashFlowPillPos : styles.cashFlowPillNeg]}>
+            <Ionicons
+              name={monthlyNetCashFlow >= 0 ? 'arrow-up' : 'arrow-down'}
+              size={12}
+              color={monthlyNetCashFlow >= 0 ? '#10B981' : '#F43F5E'}
+            />
+            <Text style={[styles.cashFlowText, monthlyNetCashFlow >= 0 ? styles.cashFlowTextPos : styles.cashFlowTextNeg]}>
+              {monthlyNetCashFlow >= 0 ? '+' : ''}{formatINR(monthlyNetCashFlow)}/mo cash flow
+            </Text>
+          </View>
         </View>
 
         {/* Main Action Button */}
@@ -168,6 +177,12 @@ export const DashboardScreen: React.FC = () => {
             Advance to Month {profile.currentMonth === 12 ? 1 : profile.currentMonth + 1} →
           </Text>
         </TouchableOpacity>
+
+        {/* Wealth Velocity SVG Area Graph */}
+        <NetWorthChart
+          snapshots={historicalSnapshots}
+          currentNetWorth={balanceSheet.netWorth}
+        />
 
         {/* Pending Decision Banner (clean single-line notice) */}
         {currentEvent && (
@@ -395,11 +410,34 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: -1,
   },
+  cashFlowPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    marginTop: 8,
+  },
+  cashFlowPillPos: {
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.28)',
+  },
+  cashFlowPillNeg: {
+    backgroundColor: 'rgba(244, 63, 94, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(244, 63, 94, 0.28)',
+  },
   cashFlowText: {
-    fontSize: 13,
-    color: '#A3A3A3',
-    fontWeight: '600',
-    marginTop: 6,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  cashFlowTextPos: {
+    color: '#10B981',
+  },
+  cashFlowTextNeg: {
+    color: '#F43F5E',
   },
   advanceButton: {
     backgroundColor: '#FFFFFF',

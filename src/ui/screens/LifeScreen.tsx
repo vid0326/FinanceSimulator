@@ -20,6 +20,7 @@ import { SwipeDilemmaCard } from '../components/SwipeDilemmaCard';
 import { ComicConsequenceModal } from '../components/ComicConsequenceModal';
 import { FlyingCoins } from '../components/FlyingCoins';
 import { formatINR } from '../components/CurrencyText';
+import { CareerLadderGraph } from '../components/CareerLadderGraph';
 
 export const LifeScreen: React.FC = () => {
   const [coinBurstKey, setCoinBurstKey] = useState(0);
@@ -29,6 +30,7 @@ export const LifeScreen: React.FC = () => {
   const currentEvent = useSimulationStore((state) => state.currentEvent);
   const decisionLogs = useSimulationStore((state) => state.decisionLogs);
   const lastConsequence = useSimulationStore((state) => state.lastConsequence);
+  const monthsInCurrentRole = useSimulationStore((state) => state.monthsInCurrentRole);
 
   const selectDecision = useSimulationStore((state) => state.selectDecision);
   const dismissConsequence = useSimulationStore((state) => state.dismissConsequence);
@@ -77,6 +79,13 @@ export const LifeScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         )}
+
+        {/* Career Milestone & Promotion Pipeline Node Graph */}
+        <CareerLadderGraph
+          profile={profile}
+          currentSalary={budget.baseSalary}
+          monthsInRole={monthsInCurrentRole}
+        />
 
         {/* Recent Decisions Feed (Clean, Quiet List) */}
         {decisionLogs.length > 0 && (

@@ -72,11 +72,20 @@ export const CoachScreen: React.FC = () => {
             return (
               <View
                 key={msg.id}
-                style={[styles.messageBubble, isUser ? styles.userBubble : styles.coachBubble]}
+                style={[styles.messageRow, isUser ? styles.messageRowUser : styles.messageRowCoach]}
               >
-                <Text style={[styles.messageText, isUser ? styles.userText : styles.coachText]}>
-                  {msg.text}
-                </Text>
+                {!isUser && (
+                  <View style={styles.coachAvatar}>
+                    <Ionicons name="sparkles" size={14} color="#000000" />
+                  </View>
+                )}
+                <View
+                  style={[styles.messageBubble, isUser ? styles.userBubble : styles.coachBubble]}
+                >
+                  <Text style={[styles.messageText, isUser ? styles.userText : styles.coachText]}>
+                    {msg.text}
+                  </Text>
+                </View>
               </View>
             );
           })}
@@ -154,6 +163,27 @@ const styles = StyleSheet.create({
   messagesContent: {
     padding: 20,
     gap: 12,
+  },
+  messageRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 6,
+  },
+  messageRowUser: {
+    justifyContent: 'flex-end',
+  },
+  messageRowCoach: {
+    justifyContent: 'flex-start',
+  },
+  coachAvatar: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
   },
   messageBubble: {
     maxWidth: '82%',

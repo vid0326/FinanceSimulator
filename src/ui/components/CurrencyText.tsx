@@ -54,7 +54,18 @@ export const CurrencyText: React.FC<CurrencyTextProps> = ({
   const formatted = formatINR(amount, compact);
 
   return (
-    <Text style={[{ color, fontWeight: '700', fontSize: 16 }, style]}>
+    <Text
+      style={[
+        {
+          color,
+          fontWeight: '800',
+          fontSize: 16,
+          fontVariant: ['tabular-nums'],
+          letterSpacing: -0.3,
+        },
+        style,
+      ]}
+    >
       {prefix}{formatted}
     </Text>
   );

@@ -18,7 +18,9 @@ import {
 import { useSimulationStore } from '../../store/useSimulationStore';
 import { InvestmentEngine } from '../../core/investment/InvestmentEngine';
 import { CurrencyText, formatINR } from '../components/CurrencyText';
+import { AssetAllocationChart } from '../components/AssetAllocationChart';
 import { AssetItem } from '../../core/types/finance';
+import { colors } from '../theme/colors';
 
 export const PortfolioScreen: React.FC = () => {
   const balanceSheet = useSimulationStore((state) => state.balanceSheet);
@@ -63,6 +65,9 @@ export const PortfolioScreen: React.FC = () => {
             Active Monthly SIP: {formatINR(totalMonthlySIP)}/mo
           </Text>
         </View>
+
+        {/* Visual Asset Allocation Donut Ring Chart */}
+        <AssetAllocationChart balanceSheet={balanceSheet} />
 
         {/* Diversification Bar — Minimal Grayscale */}
         <View style={styles.diversificationCard}>
