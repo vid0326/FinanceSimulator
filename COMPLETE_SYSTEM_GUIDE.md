@@ -32,7 +32,7 @@ A comprehensive, production-grade manual documenting the entire **Finance Life S
 
 ```mermaid
 flowchart TD
-    subgraph MobileClient ["📱 Mobile Client (React Native / Expo v57)"]
+    subgraph MobileClient ["📱 Mobile Client (React Native / Expo v58)"]
         UI["UI Screens (Black & White Theme)"]
         ZStore["Zustand Store (useSimulationStore)"]
         CEngine["CareerEngine"]

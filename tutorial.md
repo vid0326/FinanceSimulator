@@ -50,11 +50,11 @@ Welcome to the comprehensive, long-form technical guide and tutorial for **Finan
 ## 2. Complete Tech Stack
 
 ### Frontend Mobile Client
-- **Framework**: [React Native](https://reactnative.dev/) `0.86.3` with [Expo SDK](https://expo.dev/) `v57.0.22` (100% compatible with Expo Go on Android and iOS).
-- **Language**: [TypeScript](https://www.typescriptlang.org/) `5.7.3` (Strict type safety across models, props, and stores).
+- **Framework**: [React Native](https://reactnative.dev/) `0.88.0` with [Expo SDK](https://expo.dev/) `v58.0.0` (100% compatible with Expo Go on Android and iOS).
+- **Language**: [TypeScript](https://www.typescriptlang.org/) `5.7+` (Strict type safety across models, props, and stores).
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand) `v5.0.15` (Lightweight, hook-based, reactive state machine).
-- **Animation & Gestures**: [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) `4.5.1` and [Expo Haptics](https://docs.expo.dev/versions/latest/sdk/haptics/) `~57.0.3`.
-- **Vector Graphics**: [React Native SVG](https://github.com/software-mansion/react-native-svg) `15.15.4` and [@expo/vector-icons](https://icons.expo.fyi/) `^15.0.2` (Ionicons).
+- **Animation & Gestures**: [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) `4.7.1` and [Expo Haptics](https://docs.expo.dev/versions/latest/sdk/haptics/) `~58.0.7`.
+- **Vector Graphics**: [React Native SVG](https://github.com/software-mansion/react-native-svg) `15.16.0` and [@expo/vector-icons](https://icons.expo.fyi/) `^15.0.2` (Ionicons).
 
 ### Backend Server
 - **Runtime**: [Node.js](https://nodejs.org/) `v20+ / v22+`.
