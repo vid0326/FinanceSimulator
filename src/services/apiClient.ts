@@ -36,6 +36,21 @@ function resolveDefaultApiUrl(): string {
   return `http://${CURRENT_WIFI_IP}:4000/api`;
 }
 
+export interface LeaderboardEntry {
+  rank: number;
+  id: string;
+  player: string;
+  characterName: string;
+  archetype: string;
+  currentAge?: number;
+  stage: string;
+  netWorth: number;
+  healthScore: number;
+  level: number;
+  monthsSurvived: number;
+  lastActive?: string;
+}
+
 class ApiClient {
   private baseUrl: string = resolveDefaultApiUrl();
   private accessToken: string | null = null;
@@ -169,6 +184,40 @@ class ApiClient {
         updatedAt?: string;
       };
     }>('/game/state');
+  }
+
+  async fetchWealthLeaderboard() {
+    return this.request<{
+      category: string;
+      leaderboard: LeaderboardEntry[];
+    }>('/leaderboard/wealth');
+  }
+
+  async fetchHealthLeaderboard() {
+    return this.request<{
+      category: string;
+      leaderboard: LeaderboardEntry[];
+    }>('/leaderboard/health');
+  }
+
+  async logPromotion(payload: {
+    gameSaveId: string;
+    previousTitle: string;
+    newTitle: string;
+    previousSalary: number;
+    newSalary: number;
+    hikePercentage: number;
+    bonusAmount: number;
+    lifestyleChoice: string;
+    monthSimulated: number;
+  }) {
+    return this.request<{
+      success: boolean;
+      promotionLog: any;
+    }>('/game/promotion', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
   }
 
   logout() {

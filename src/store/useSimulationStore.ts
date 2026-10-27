@@ -21,6 +21,7 @@ import { InvestmentEngine } from '../core/investment/InvestmentEngine';
 import { DebtEngine } from '../core/debt/DebtEngine';
 import { CoachEngine, CoachMessage } from '../intelligence/coachEngine';
 import { CareerEngine, PromotionOffer } from '../core/career/CareerEngine';
+import { requestBackgroundSync, requestPromotionLog } from '../services/syncBridge';
 
 export type AppTab = 'dashboard' | 'life' | 'portfolio' | 'whatif' | 'coach';
 
@@ -423,6 +424,9 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         streakMonths: gamification.streakMonths + 1,
       },
     });
+
+    // Auto-sync in background on month advance
+    requestBackgroundSync();
   },
 
   acceptPromotion: (optionId: string) => {
@@ -481,6 +485,19 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       activePromotionOffer: null,
       lifeSatisfaction: Math.min(100, get().lifeSatisfaction + chosenOption.lifeSatisfactionImpact),
     });
+
+    // Wire up backend promotion logging & background sync
+    requestPromotionLog({
+      previousTitle: profile.career,
+      newTitle: activePromotionOffer.newTitle,
+      previousSalary: budget.baseSalary,
+      newSalary: activePromotionOffer.newSalary,
+      hikePercentage: activePromotionOffer.hikePercentage,
+      bonusAmount: activePromotionOffer.performanceBonus,
+      lifestyleChoice: chosenOption.title,
+      monthSimulated: profile.totalMonthsSimulated,
+    });
+    requestBackgroundSync();
   },
 
   dismissPromotion: () => {
@@ -567,6 +584,9 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         achievements: newAchievements,
       },
     });
+
+    // Auto-sync decision consequences to cloud
+    requestBackgroundSync();
   },
 
   dismissConsequence: () => {

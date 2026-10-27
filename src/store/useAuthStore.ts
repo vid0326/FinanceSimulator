@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { apiClient } from '../services/apiClient';
 import { useSimulationStore } from './useSimulationStore';
+import { registerSyncCallbacks, PromotionLogPayload } from '../services/syncBridge';
 
 export interface UserAccount {
   id: string;
@@ -185,3 +186,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 }));
+
+// Wire up non-blocking background auto-sync and promotion logging callbacks
+registerSyncCallbacks(
+  () => {
+    const auth = useAuthStore.getState();
+    if (auth.isAuthenticated) {
+      auth.syncToCloud().catch(() => {});
+    }
+  },
+  (promoData: PromotionLogPayload) => {
+    const auth = useAuthStore.getState();
+    if (auth.isAuthenticated && auth.activeSaveId) {
+      apiClient
+        .logPromotion({
+          gameSaveId: auth.activeSaveId,
+          ...promoData,
+        })
+        .catch((err) => console.log('Promotion log background sync error:', err));
+    }
+  }
+);

@@ -14,7 +14,8 @@
 - **Career Ladder & Promotion Engine**: 4 tracks (Tech, Business, Creative, General) with +22% to +38% salary hikes, milestone bonuses, and the 3-option **Lifestyle Inflation Dilemma**.
 - **Stochastic Life Event Engine**: Dynamic weighted random sampling across 100+ scenarios based on cash reserves, debt ratios, and seasonality.
 - **Production-Ready Backend**: Complete Express + PostgreSQL backend with sliding-window rate limiting, JWT token rotation, and 22 verified REST API endpoints.
-- **Community Leaderboards & Peer Benchmarks**: Real-time Net Worth, Health Score, and Longevity rankings powered by PostgreSQL B-Tree indexes.
+- **Community Leaderboards & Peer Benchmarks**: Live in-app `[ 🏆 Ranks ]` modal displaying real-time global Net Worth and Health Score (0–100) leaderboards powered by PostgreSQL B-Tree indexes.
+- **Background Auto-Sync & Promotion Logging**: Silent, non-blocking cloud backup on every month advance and career promotion choice.
 
 ---
 

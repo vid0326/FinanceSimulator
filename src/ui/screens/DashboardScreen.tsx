@@ -25,11 +25,13 @@ import { FlyingCoins } from '../components/FlyingCoins';
 import { ConsequenceModal } from '../components/ConsequenceModal';
 import { AuthModal } from '../components/AuthModal';
 import { PromotionModal } from '../components/PromotionModal';
+import { LeaderboardModal } from '../components/LeaderboardModal';
 import { useAuthStore } from '../../store/useAuthStore';
 
 export const DashboardScreen: React.FC = () => {
   const [coinBurstKey, setCoinBurstKey] = useState(0);
   const [authModalVisible, setAuthModalVisible] = useState(false);
+  const [leaderboardModalVisible, setLeaderboardModalVisible] = useState(false);
 
   const { isAuthenticated, user, syncToCloud } = useAuthStore();
 
@@ -128,6 +130,16 @@ export const DashboardScreen: React.FC = () => {
               >
                 <Ionicons name="swap-horizontal" size={13} color="#FFFFFF" />
                 <Text style={styles.switchCharBtnText}>Switch Profile</Text>
+              </TouchableOpacity>
+
+              {/* Global Leaderboard Button */}
+              <TouchableOpacity
+                style={styles.leaderboardBtn}
+                onPress={() => setLeaderboardModalVisible(true)}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="trophy-outline" size={13} color="#FFFFFF" />
+                <Text style={styles.leaderboardBtnText}>Ranks</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.metaText} numberOfLines={1}>
@@ -267,6 +279,10 @@ export const DashboardScreen: React.FC = () => {
         onClose={() => setAuthModalVisible(false)}
       />
       <PromotionModal />
+      <LeaderboardModal
+        visible={leaderboardModalVisible}
+        onClose={() => setLeaderboardModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -306,6 +322,22 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   switchCharBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  leaderboardBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#1E1E1E',
+    borderWidth: 1,
+    borderColor: '#333333',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  leaderboardBtnText: {
     fontSize: 11,
     fontWeight: '700',
     color: '#FFFFFF',
