@@ -19,13 +19,18 @@ export class EventEngine {
     triggeredEventIds: string[],
     balanceSheet: BalanceSheet
   ): LifeScenarioEvent | null {
-    // Filter candidate scenarios by life stage and one-time criteria
+    // 1. Filter candidate scenarios by life stage and one-time criteria
     const eligible = SCENARIO_LIBRARY.filter((scenario) => {
       if (scenario.oneTimeOnly && triggeredEventIds.includes(scenario.id)) {
         return false;
       }
 
-      if (!scenario.applicableStages.includes(profile.currentStage)) {
+      // Check stage compatibility
+      const stageMatches =
+        scenario.applicableStages.includes(profile.currentStage) ||
+        (profile.currentStage === 'zero' && scenario.applicableStages.includes('student'));
+
+      if (!stageMatches) {
         return false;
       }
 
@@ -33,21 +38,53 @@ export class EventEngine {
     });
 
     if (eligible.length === 0) {
-      // Fallback to any scenario that allows replay
-      const repeatable = SCENARIO_LIBRARY.filter((s) => !s.oneTimeOnly);
-      if (repeatable.length === 0) return SCENARIO_LIBRARY[0];
-      const randomIndex = Math.floor(Math.random() * repeatable.length);
-      return repeatable[randomIndex];
+      const allRepeatable = SCENARIO_LIBRARY.filter((s) => !s.oneTimeOnly);
+      if (allRepeatable.length === 0) return SCENARIO_LIBRARY[0];
+      return allRepeatable[Math.floor(Math.random() * allRepeatable.length)];
     }
 
-    // Pick top unplayed or random eligible scenario
+    // 2. Separate into unplayed and repeatable pool
     const unplayed = eligible.filter((s) => !triggeredEventIds.includes(s.id));
-    if (unplayed.length > 0) {
-      return unplayed[0];
+    const candidates = unplayed.length > 0 ? unplayed : eligible;
+
+    // 3. Dynamic context-aware weight scoring (life is unpredictable & context-driven)
+    const weightedCandidates = candidates.map((item) => {
+      let weight = 1.0;
+
+      // Low cash increases vulnerability to surprises and small emergencies
+      if (balanceSheet.liquidCash < 5000 && item.category === 'emergency') {
+        weight += 1.8;
+      }
+      // High investments unlock market volatility and asset decisions
+      if (balanceSheet.investmentsTotal > 40000 && (item.category === 'market' || item.category === 'investment')) {
+        weight += 1.5;
+      }
+      // March is tax season in India
+      if (profile.currentMonth === 3 && item.category === 'tax') {
+        weight += 2.2;
+      }
+      // October/November is festive celebration season
+      if ((profile.currentMonth === 10 || profile.currentMonth === 11) && item.category === 'lifestyle') {
+        weight += 1.8;
+      }
+
+      return { item, weight };
+    });
+
+    // 4. Weighted random sampling (True Stochastic Selection)
+    const totalWeight = weightedCandidates.reduce((sum, w) => sum + w.weight, 0);
+    let randomThreshold = Math.random() * totalWeight;
+
+    for (const candidate of weightedCandidates) {
+      randomThreshold -= candidate.weight;
+      if (randomThreshold <= 0) {
+        return candidate.item;
+      }
     }
 
-    const randomIndex = Math.floor(Math.random() * eligible.length);
-    return eligible[randomIndex];
+    // Fallback to random pick
+    const randomIdx = Math.floor(Math.random() * candidates.length);
+    return candidates[randomIdx];
   }
 
   /**

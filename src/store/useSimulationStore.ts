@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import { UserProfile, LifeStage, STAGE_PRESETS } from '../core/types/profile';
+import { UserProfile, LifeStage, STAGE_PRESETS, SimulationInitOptions } from '../core/types/profile';
 import {
   BalanceSheet,
   MonthlyBudget,
@@ -18,7 +18,9 @@ import { AccountingEngine } from '../core/accounting/AccountingEngine';
 import { HealthEngine } from '../core/health/HealthEngine';
 import { EventEngine } from '../core/events/EventEngine';
 import { InvestmentEngine } from '../core/investment/InvestmentEngine';
+import { DebtEngine } from '../core/debt/DebtEngine';
 import { CoachEngine, CoachMessage } from '../intelligence/coachEngine';
+import { CareerEngine, PromotionOffer } from '../core/career/CareerEngine';
 
 export type AppTab = 'dashboard' | 'life' | 'portfolio' | 'whatif' | 'coach';
 
@@ -39,30 +41,40 @@ export interface SimulationStoreState {
   triggeredEventIds: string[];
   lastConsequence: ConsequenceImpact | null;
   coachMessages: CoachMessage[];
+  monthsInCurrentRole: number;
+  activePromotionOffer: PromotionOffer | null;
+  selectedCharacterId: string;
 
   // Actions
-  initializeSimulation: (stageId: LifeStage, userName: string, avatarSeed?: string) => void;
+  initializeSimulation: (
+    optionsOrStage: SimulationInitOptions | LifeStage,
+    userName?: string,
+    avatarSeed?: string
+  ) => void;
   advanceMonth: () => void;
   selectDecision: (decision: DecisionOption) => void;
   dismissConsequence: () => void;
+  acceptPromotion: (optionId: string) => void;
+  dismissPromotion: () => void;
   updateAssetSIP: (assetId: string, sipAmount: number) => void;
   repayDebtLumpSum: (liabilityId: string, amount: number) => void;
   sendCoachMessage: (query: string) => void;
   setActiveTab: (tab: AppTab) => void;
   resetSimulation: () => void;
+  restoreCloudSave: (saveData: any) => void;
 }
 
 const DEFAULT_PROFILE: UserProfile = {
-  name: 'Arjun',
+  name: 'Player',
   avatarSeed: 'avatar_1',
-  currentAge: 21,
+  currentAge: 18,
   currentMonth: 1,
   totalMonthsSimulated: 0,
-  currentStage: 'first_job',
-  career: 'Junior Software Engineer',
+  currentStage: 'zero',
+  career: 'Blank Canvas',
   riskTolerance: 'moderate',
   financialGoal: {
-    title: 'Emergency Safety & First 10 Lakhs',
+    title: 'Financial Independence',
     targetAmount: 1000000,
     targetYears: 5,
   },
@@ -73,121 +85,159 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
   activeTab: 'dashboard',
   profile: DEFAULT_PROFILE,
   balanceSheet: {
-    liquidCash: 12000,
-    emergencyFund: 35000,
-    investmentsTotal: 15000,
-    assets: [
-      InvestmentEngine.createDefaultAsset('mutual_fund_equity', 'Nifty 50 Index Fund', 15000, 3000),
-    ],
+    liquidCash: 0,
+    emergencyFund: 0,
+    investmentsTotal: 0,
+    assets: [],
     liabilitiesTotal: 0,
     liabilities: [],
-    netWorth: 62000,
+    netWorth: 0,
   },
   budget: {
-    baseSalary: 45000,
+    baseSalary: 0,
     bonusOrExtraIncome: 0,
     fixedNeeds: {
-      rent: 14000,
-      utilities: 3000,
-      groceries: 5000,
-      healthInsurance: 1500,
+      rent: 0,
+      utilities: 0,
+      groceries: 0,
+      healthInsurance: 0,
     },
     discretionaryWants: {
-      entertainment: 3500,
-      diningOut: 4000,
-      shopping: 2500,
+      entertainment: 0,
+      diningOut: 0,
+      shopping: 0,
     },
   },
   currentMarket: 'stagnant',
   cashFlowHistory: [],
   historicalSnapshots: [],
   healthScore: {
-    savingsRateScore: 16,
+    savingsRateScore: 0,
     debtManagementScore: 20,
-    emergencyFundScore: 12,
-    diversificationScore: 8,
-    investmentDisciplineScore: 14,
-    cashFlowStabilityScore: 10,
-    totalScore: 80,
-    grade: 'A',
+    emergencyFundScore: 0,
+    diversificationScore: 0,
+    investmentDisciplineScore: 5,
+    cashFlowStabilityScore: 6,
+    totalScore: 31,
+    grade: 'D',
     keyStrength: 'Debt Control',
-    keyVulnerability: 'Diversification',
+    keyVulnerability: 'Emergency Buffer',
   },
   lifeSatisfaction: 75,
   gamification: {
-    xp: 150,
+    xp: 0,
     level: 1,
-    levelTitle: 'Money Beginner',
-    achievements: [
-      {
-        id: 'ach_started',
-        title: 'First Step',
-        description: 'Began your simulated financial life journey.',
-        icon: 'rocket-outline',
-        category: 'saving',
-        unlockedAtMonth: 1,
-      },
-    ],
+    levelTitle: 'Ground Zero',
+    achievements: [],
     decisionsMadeCount: 0,
-    streakMonths: 1,
+    streakMonths: 0,
   },
   currentEvent: null,
   decisionLogs: [],
   triggeredEventIds: [],
   lastConsequence: null,
   coachMessages: [],
+  monthsInCurrentRole: 0,
+  activePromotionOffer: null,
+  selectedCharacterId: 'char_ground_zero',
 
-  initializeSimulation: (stageId: LifeStage, userName: string, avatarSeed: string = 'avatar_1') => {
-    const preset = STAGE_PRESETS[stageId] || STAGE_PRESETS.first_job;
+  initializeSimulation: (
+    optionsOrStage: SimulationInitOptions | LifeStage,
+    userName?: string,
+    avatarSeed: string = 'avatar_1'
+  ) => {
+    let name = 'Player';
+    let age = 18;
+    let stageId: LifeStage = 'zero';
+    let career = 'Blank Canvas';
+    let startingCash = 0;
+    let startingSavings = 0;
+    let startingDebt = 0;
+    let monthlyIncome = 0;
+    let fixedExpenses = 0;
+    let seed = avatarSeed;
+
+    if (typeof optionsOrStage === 'object') {
+      const opts = optionsOrStage;
+      name = opts.name?.trim() || 'Player';
+      stageId = opts.stageId || 'zero';
+      const preset = STAGE_PRESETS[stageId] || STAGE_PRESETS.zero;
+      age = opts.age ?? preset.age;
+      career = opts.career || preset.career;
+      startingCash = opts.startingCash ?? preset.startingCash;
+      startingSavings = opts.startingSavings ?? preset.startingSavings;
+      startingDebt = opts.startingDebt ?? preset.startingDebt;
+      monthlyIncome = opts.monthlyIncome ?? preset.monthlyIncome;
+      fixedExpenses = opts.fixedExpenses ?? preset.fixedMonthlyExpenses;
+      seed = opts.avatarSeed || avatarSeed;
+    } else {
+      stageId = optionsOrStage;
+      const preset = STAGE_PRESETS[stageId] || STAGE_PRESETS.zero;
+      name = userName?.trim() || 'Player';
+      age = preset.age;
+      career = preset.career;
+      startingCash = preset.startingCash;
+      startingSavings = preset.startingSavings;
+      startingDebt = preset.startingDebt;
+      monthlyIncome = preset.monthlyIncome;
+      fixedExpenses = preset.fixedMonthlyExpenses;
+      seed = avatarSeed;
+    }
 
     const newProfile: UserProfile = {
-      name: userName || 'Arjun',
-      avatarSeed,
-      currentAge: preset.age,
+      name,
+      avatarSeed: seed,
+      currentAge: age,
       currentMonth: 1,
       totalMonthsSimulated: 0,
       currentStage: stageId,
-      career: preset.career,
+      career,
       riskTolerance: 'moderate',
       financialGoal: {
-        title: 'Build ₹10 Lakh Net Worth',
+        title: 'Financial Independence',
         targetAmount: 1000000,
         targetYears: 5,
       },
     };
 
-    const starterAssets = [
-      InvestmentEngine.createDefaultAsset(
-        'mutual_fund_equity',
-        'Nifty 50 Index Fund',
-        Math.round(preset.startingSavings * 0.4),
-        Math.round(preset.monthlyIncome * 0.1)
-      ),
-    ];
+    // No hardcoded artificial assets! Players build their investment portfolio from scratch.
+    const starterAssets: any[] = [];
+
+    const starterLiabilities = startingDebt > 0
+      ? [
+          DebtEngine.createLiability(
+            'education_loan',
+            'Starter Debt / Loan',
+            startingDebt,
+            0.10, // 10% interest
+            36 // 36 months tenure
+          ),
+        ]
+      : [];
 
     const initialBS: BalanceSheet = {
-      liquidCash: preset.startingCash,
-      emergencyFund: Math.round(preset.startingSavings * 0.6),
-      investmentsTotal: Math.round(preset.startingSavings * 0.4),
+      liquidCash: startingCash,
+      emergencyFund: startingSavings,
+      investmentsTotal: 0,
       assets: starterAssets,
-      liabilitiesTotal: preset.startingDebt,
-      liabilities: [],
-      netWorth: preset.startingCash + preset.startingSavings - preset.startingDebt,
+      liabilitiesTotal: startingDebt,
+      liabilities: starterLiabilities,
+      netWorth: startingCash + startingSavings - startingDebt,
     };
 
     const initialBudget: MonthlyBudget = {
-      baseSalary: preset.monthlyIncome,
+      baseSalary: monthlyIncome,
       bonusOrExtraIncome: 0,
       fixedNeeds: {
-        rent: Math.round(preset.fixedMonthlyExpenses * 0.6),
-        utilities: Math.round(preset.fixedMonthlyExpenses * 0.15),
-        groceries: Math.round(preset.fixedMonthlyExpenses * 0.2),
-        healthInsurance: Math.round(preset.fixedMonthlyExpenses * 0.05),
+        rent: Math.round(fixedExpenses * 0.6),
+        utilities: Math.round(fixedExpenses * 0.15),
+        groceries: Math.round(fixedExpenses * 0.2),
+        healthInsurance: Math.round(fixedExpenses * 0.05),
       },
       discretionaryWants: {
-        entertainment: Math.round(preset.monthlyIncome * 0.08),
-        diningOut: Math.round(preset.monthlyIncome * 0.07),
-        shopping: Math.round(preset.monthlyIncome * 0.05),
+        entertainment: Math.round(monthlyIncome * 0.08),
+        diningOut: Math.round(monthlyIncome * 0.07),
+        shopping: Math.round(monthlyIncome * 0.05),
       },
     };
 
@@ -196,18 +246,18 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       {
         month: 1,
         year: 2026,
-        totalIncome: preset.monthlyIncome,
-        totalFixedExpenses: preset.fixedMonthlyExpenses,
-        totalDiscretionaryExpenses: Math.round(preset.monthlyIncome * 0.2),
-        totalEMIs: 0,
-        totalSIPContributions: Math.round(preset.monthlyIncome * 0.1),
+        totalIncome: monthlyIncome,
+        totalFixedExpenses: fixedExpenses,
+        totalDiscretionaryExpenses: Math.round(monthlyIncome * 0.2),
+        totalEMIs: starterLiabilities.reduce((sum, l) => sum + l.monthlyEMI, 0),
+        totalSIPContributions: 0,
         emergencyContribution: 0,
-        netSavingsOrDeficit: Math.round(preset.monthlyIncome * 0.15),
-        beginningCash: preset.startingCash,
-        endingCash: preset.startingCash,
+        netSavingsOrDeficit: Math.max(0, monthlyIncome - fixedExpenses - Math.round(monthlyIncome * 0.2)),
+        beginningCash: startingCash,
+        endingCash: startingCash,
         penaltyCharges: 0,
       },
-      1
+      0
     );
 
     // Initial Coach Welcome Brief
@@ -229,7 +279,7 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       historicalSnapshots: [
         {
           monthIndex: 0,
-          age: preset.age,
+          age: age,
           monthInYear: 1,
           netWorth: initialBS.netWorth,
           liquidCash: initialBS.liquidCash,
@@ -342,6 +392,18 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       updatedBalanceSheet
     );
 
+    // Evaluate Career Promotion & Appraisal
+    const nextRoleMonths = get().monthsInCurrentRole + 1;
+    let promoOffer: PromotionOffer | null = null;
+    if (updatedProfile.career !== 'Blank Canvas' && budget.baseSalary > 0) {
+      promoOffer = CareerEngine.evaluatePromotion(
+        updatedProfile,
+        budget.baseSalary,
+        nextRoleMonths,
+        updatedHealth.totalScore
+      );
+    }
+
     set({
       profile: updatedProfile,
       balanceSheet: updatedBalanceSheet,
@@ -351,6 +413,8 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       healthScore: updatedHealth,
       lifeSatisfaction: newSatisfaction,
       currentEvent: nextScenario,
+      monthsInCurrentRole: promoOffer ? get().monthsInCurrentRole : nextRoleMonths,
+      activePromotionOffer: promoOffer,
       gamification: {
         ...gamification,
         xp: newXP,
@@ -359,6 +423,68 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
         streakMonths: gamification.streakMonths + 1,
       },
     });
+  },
+
+  acceptPromotion: (optionId: string) => {
+    const { activePromotionOffer, budget, profile, balanceSheet } = get();
+    if (!activePromotionOffer) return;
+
+    const chosenOption =
+      activePromotionOffer.lifestyleInflationOptions.find((o) => o.id === optionId) ||
+      activePromotionOffer.lifestyleInflationOptions[0];
+
+    const salaryDelta = activePromotionOffer.newSalary - budget.baseSalary;
+    const additionalSIP = Math.round(salaryDelta * chosenOption.sipIncreasePercentage);
+    const additionalExpenses = Math.round(salaryDelta * chosenOption.expenseIncreasePercentage);
+
+    // Update budget
+    const updatedBudget: MonthlyBudget = {
+      ...budget,
+      baseSalary: activePromotionOffer.newSalary,
+      discretionaryWants: {
+        ...budget.discretionaryWants,
+        diningOut: budget.discretionaryWants.diningOut + Math.round(additionalExpenses * 0.4),
+        entertainment: budget.discretionaryWants.entertainment + Math.round(additionalExpenses * 0.3),
+        shopping: budget.discretionaryWants.shopping + Math.round(additionalExpenses * 0.3),
+      },
+    };
+
+    // Credit one-time performance bonus to cash
+    const updatedBalanceSheet: BalanceSheet = {
+      ...balanceSheet,
+      liquidCash: balanceSheet.liquidCash + activePromotionOffer.performanceBonus,
+      netWorth: balanceSheet.netWorth + activePromotionOffer.performanceBonus,
+    };
+
+    // If option allocated to SIP, boost active assets SIP or create a new SIP asset
+    if (additionalSIP > 0) {
+      if (updatedBalanceSheet.assets.length > 0) {
+        updatedBalanceSheet.assets[0].monthlySIPAmount =
+          (updatedBalanceSheet.assets[0].monthlySIPAmount || 0) + additionalSIP;
+      } else {
+        updatedBalanceSheet.assets.push(
+          InvestmentEngine.createDefaultAsset('mutual_fund_equity', 'Nifty 50 Index Fund', 0, additionalSIP)
+        );
+      }
+    }
+
+    const updatedProfile: UserProfile = {
+      ...profile,
+      career: activePromotionOffer.newTitle,
+    };
+
+    set({
+      profile: updatedProfile,
+      budget: updatedBudget,
+      balanceSheet: updatedBalanceSheet,
+      monthsInCurrentRole: 0,
+      activePromotionOffer: null,
+      lifeSatisfaction: Math.min(100, get().lifeSatisfaction + chosenOption.lifeSatisfactionImpact),
+    });
+  },
+
+  dismissPromotion: () => {
+    set({ activePromotionOffer: null });
   },
 
   selectDecision: (decision: DecisionOption) => {
@@ -542,5 +668,24 @@ export const useSimulationStore = create<SimulationStoreState>((set, get) => ({
       isInitialized: false,
       activeTab: 'dashboard',
     });
+  },
+
+  restoreCloudSave: (saveData: any) => {
+    set((state) => ({
+      isInitialized: true,
+      profile: {
+        ...state.profile,
+        name: saveData.characterName || state.profile.name,
+        currentAge: saveData.currentAge ?? state.profile.currentAge,
+        currentMonth: saveData.currentMonth ?? state.profile.currentMonth,
+        currentStage: (saveData.currentStage as LifeStage) || state.profile.currentStage,
+        totalMonthsSimulated: saveData.totalMonthsSimulated ?? state.profile.totalMonthsSimulated,
+      },
+      balanceSheet: saveData.balanceSheet || state.balanceSheet,
+      budget: saveData.budget || state.budget,
+      healthScore: saveData.healthScore || state.healthScore,
+      gamification: saveData.gamification || state.gamification,
+      decisionLogs: saveData.decisionLogs || state.decisionLogs,
+    }));
   },
 }));

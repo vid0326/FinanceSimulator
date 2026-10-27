@@ -1,0 +1,121 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  displayName   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  gameSaves     GameSave[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+model GameSave {
+  id                   String         @id @default(uuid())
+  userId               String
+  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Simulation Profile & Career
+  characterName        String
+  characterArchetype   String         @default("custom")
+  currentAge           Int
+  currentMonth         Int
+  currentStage         String
+  totalMonthsSimulated Int            @default(0)
+  isActive             Boolean        @default(true)
+
+  // Indexed Metrics for Leaderboards & Analytics
+  netWorth             Float          @default(0)
+  healthScoreValue     Float          @default(0)
+  level                Int            @default(1)
+
+  // Financial Ledger & Deep State (JSONB)
+  balanceSheet         Json
+  budget               Json
+  healthScore          Json
+  gamification         Json
+
+  // Relations
+  decisionLogs         DecisionLog[]
+  promotionLogs        PromotionLog[]
+  coachChatLogs        CoachChatLog[]
+
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([netWorth(sort: Desc)])
+  @@index([healthScoreValue(sort: Desc)])
+  @@map("game_saves")
+}
+
+model DecisionLog {
+  id             String    @id @default(uuid())
+  gameSaveId     String
+  gameSave       GameSave  @relation(fields: [gameSaveId], references: [id], onDelete: Cascade)
+
+  eventId        String
+  eventTitle     String
+  selectedOption String
+  consequence    Json
+  monthSimulated Int
+  createdAt      DateTime  @default(now())
+
+  @@index([gameSaveId])
+  @@map("decision_logs")
+}
+
+model PromotionLog {
+  id             String    @id @default(uuid())
+  gameSaveId     String
+  gameSave       GameSave  @relation(fields: [gameSaveId], references: [id], onDelete: Cascade)
+
+  previousTitle  String
+  newTitle       String
+  previousSalary Float
+  newSalary      Float
+  hikePercentage Float
+  bonusAmount    Float
+  lifestyleChoice String
+  monthSimulated Int
+  createdAt      DateTime  @default(now())
+
+  @@index([gameSaveId])
+  @@map("promotion_logs")
+}
+
+model CoachChatLog {
+  id             String    @id @default(uuid())
+  gameSaveId     String
+  gameSave       GameSave  @relation(fields: [gameSaveId], references: [id], onDelete: Cascade)
+
+  userQuery      String
+  coachResponse  String
+  monthSimulated Int
+  createdAt      DateTime  @default(now())
+
+  @@index([gameSaveId])
+  @@map("coach_chat_logs")
+}

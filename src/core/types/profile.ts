@@ -2,7 +2,7 @@
  * User Profile and Lifecycle Stage Definitions
  */
 
-export type LifeStage = 'student' | 'intern' | 'first_job' | 'experienced' | 'independent';
+export type LifeStage = 'zero' | 'student' | 'intern' | 'first_job' | 'experienced' | 'independent';
 
 export type RiskTolerance = 'conservative' | 'moderate' | 'aggressive';
 
@@ -20,6 +20,18 @@ export interface StartingStagePreset {
 }
 
 export const STAGE_PRESETS: Record<LifeStage, StartingStagePreset> = {
+  zero: {
+    id: 'zero',
+    title: 'Start From Zero',
+    age: 18,
+    career: 'Blank Canvas',
+    monthlyIncome: 0,
+    startingCash: 0,
+    startingSavings: 0,
+    startingDebt: 0,
+    fixedMonthlyExpenses: 0,
+    description: 'Zero money, zero income, zero debt. Build your wealth from ground zero.',
+  },
   student: {
     id: 'student',
     title: 'College Student',
@@ -97,3 +109,17 @@ export interface UserProfile {
     targetYears: number;
   };
 }
+
+export interface SimulationInitOptions {
+  name: string;
+  age?: number;
+  stageId?: LifeStage;
+  career?: string;
+  startingCash?: number;
+  startingSavings?: number;
+  startingDebt?: number;
+  monthlyIncome?: number;
+  fixedExpenses?: number;
+  avatarSeed?: string;
+}
+

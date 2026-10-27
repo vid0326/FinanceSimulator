@@ -13,6 +13,7 @@ import {
   SafeAreaView,
   Platform,
   StatusBar,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
@@ -22,9 +23,15 @@ import { HealthGauge } from '../components/HealthGauge';
 import { InteractiveAvatar, AvatarMood } from '../components/InteractiveAvatar';
 import { FlyingCoins } from '../components/FlyingCoins';
 import { ConsequenceModal } from '../components/ConsequenceModal';
+import { AuthModal } from '../components/AuthModal';
+import { PromotionModal } from '../components/PromotionModal';
+import { useAuthStore } from '../../store/useAuthStore';
 
 export const DashboardScreen: React.FC = () => {
   const [coinBurstKey, setCoinBurstKey] = useState(0);
+  const [authModalVisible, setAuthModalVisible] = useState(false);
+
+  const { isAuthenticated, user, syncToCloud } = useAuthStore();
 
   const profile = useSimulationStore((state) => state.profile);
   const balanceSheet = useSimulationStore((state) => state.balanceSheet);
@@ -36,6 +43,27 @@ export const DashboardScreen: React.FC = () => {
   const advanceMonth = useSimulationStore((state) => state.advanceMonth);
   const dismissConsequence = useSimulationStore((state) => state.dismissConsequence);
   const setActiveTab = useSimulationStore((state) => state.setActiveTab);
+  const resetSimulation = useSimulationStore((state) => state.resetSimulation);
+
+  const handleSwitchCharacter = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Return to the character selection screen to choose or create a different profile?')) {
+        resetSimulation();
+      }
+    } else {
+      Alert.alert(
+        'Switch Profile / Character',
+        'Return to the first page to choose a different character archetype or start from zero with a new profile?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Switch Character',
+            onPress: () => resetSimulation(),
+          },
+        ]
+      );
+    }
+  };
 
   // Map financial state to Avatar mood
   let mood: AvatarMood = 'happy';
@@ -52,6 +80,9 @@ export const DashboardScreen: React.FC = () => {
   const handleAdvance = () => {
     setCoinBurstKey((prev) => prev + 1);
     advanceMonth();
+    if (isAuthenticated) {
+      syncToCloud();
+    }
   };
 
   const monthlyNetCashFlow =
@@ -71,13 +102,39 @@ export const DashboardScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Minimal Header */}
         <View style={styles.topBar}>
-          <View>
-            <Text style={styles.nameTitle}>{profile.name}</Text>
-            <Text style={styles.metaText}>
-              Age {profile.currentAge} · Month {profile.currentMonth}
+          <View style={{ flex: 1, paddingRight: 8 }}>
+            <View style={styles.nameRow}>
+              <Text style={styles.nameTitle} numberOfLines={1}>{profile.name}</Text>
+              <TouchableOpacity
+                style={[styles.cloudPill, isAuthenticated && styles.cloudPillActive]}
+                onPress={() => setAuthModalVisible(true)}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name={isAuthenticated ? 'cloud-done' : 'cloud-outline'}
+                  size={12}
+                  color={isAuthenticated ? '#000000' : '#888888'}
+                />
+                <Text style={[styles.cloudPillText, isAuthenticated && styles.cloudPillTextActive]}>
+                  {isAuthenticated ? user?.displayName || 'Cloud' : 'Sync'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Switch Profile / Character Button */}
+              <TouchableOpacity
+                style={styles.switchCharBtn}
+                onPress={handleSwitchCharacter}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="swap-horizontal" size={13} color="#FFFFFF" />
+                <Text style={styles.switchCharBtnText}>Switch Profile</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.metaText} numberOfLines={1}>
+              Age {profile.currentAge} · Month {profile.currentMonth} · {profile.career}
             </Text>
           </View>
-          <InteractiveAvatar mood={mood} size={54} />
+          <InteractiveAvatar mood={mood} size={50} />
         </View>
 
         {/* Hero Net Worth — Clean & Commanding */}
@@ -205,6 +262,11 @@ export const DashboardScreen: React.FC = () => {
         consequence={lastConsequence}
         onDismiss={dismissConsequence}
       />
+      <AuthModal
+        visible={authModalVisible}
+        onClose={() => setAuthModalVisible(false)}
+      />
+      <PromotionModal />
     </SafeAreaView>
   );
 };
@@ -225,6 +287,51 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  switchCharBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#1E1E1E',
+    borderWidth: 1,
+    borderColor: '#333333',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  switchCharBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  cloudPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#1A1A1A',
+    borderWidth: 1,
+    borderColor: '#333333',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  cloudPillActive: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
+  },
+  cloudPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#888888',
+  },
+  cloudPillTextActive: {
+    color: '#000000',
   },
   nameTitle: {
     fontSize: 24,
