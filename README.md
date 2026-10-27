@@ -1,4 +1,5 @@
 # FinanceSimulator
+## THIS WHOLE IS VIBE CODED SO SORRRYYYYYYYYYYYYYYYYYYYYY
 
 > A mobile-first, realistic financial life simulation game built with React Native (Expo v57), Express.js, PostgreSQL, and Prisma ORM.
 
